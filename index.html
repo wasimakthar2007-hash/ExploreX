@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ExploreX</title>
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        /* --- Professional Splash Screen Styling --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a; /* Deep professional slate/navy background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .splash-container {
+            text-align: center;
+            animation: containerFadeIn 1s ease-out forwards;
+        }
+
+        /* Logo with a smooth, continuous breathing animation */
+        .app-logo {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(13, 148, 136, 0.4));
+            animation: breathe 2.5s ease-in-out infinite;
+        }
+
+        .brand-name {
+            color: white;
+            font-size: 36px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .brand-name span {
+            color: #0d9488; /* ExploreX primary teal */
+        }
+
+        .tagline {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Modern loading spinner */
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #0d9488;
+            border-radius: 50%;
+            margin: 40px auto 0;
+            animation: spin 1s linear infinite;
+        }
+
+        /* --- Keyframes --- */
+        @keyframes containerFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-container">
+        <img src="icon.png" alt="ExploreX Logo" class="app-logo">
+        
+        <h1 class="brand-name">Explore<span>X</span></h1>
+        <p class="tagline">Your Ultimate Tour Guide</p>
+        
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .catch(err => console.error('SW Registration failed:', err));
+            });
+        }
+    </script>
+
+    <script type="module">
+        import { auth } from './config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+        // 1. Create a promise that waits exactly 3 seconds
+        const minimumDelay = new Promise(resolve => setTimeout(resolve, 3000));
+
+        // 2. Create a promise that checks the Firebase Auth state
+        const checkAuth = new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                unsubscribe(); // Stop listening once we have the initial state
+                resolve(user);
+            });
+        });
+
+        // 3. Wait for BOTH the 3 seconds to pass AND Firebase to respond
+        Promise.all([minimumDelay, checkAuth]).then(([delayResult, user]) => {
+            if (user) {
+                // User is already logged in
+                window.location.replace('home.html');
+            } else {
+                // User is not logged in
+                window.location.replace('login.html');
+            }
+        }).catch(error => {
+            console.error("Routing error:", error);
+            // Fallback in case of error
+            window.location.replace('login.html');
+        });
+    </script>
+</body>
+</html>
