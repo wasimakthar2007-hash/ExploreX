@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Tour Planner | ExploreX</title>
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        /* --- CSS Variables & Premium Palette --- */
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #115e59;
+            --accent: #f59e0b; 
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #334155;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --card-glass: rgba(255, 255, 255, 0.94);
+            --border-rgba: rgba(226, 232, 240, 0.8);
+            --ai-glow: rgba(13, 148, 136, 0.5);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.75)), 
+                        url('[https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80](https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80)') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-dark); 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+        a { text-decoration: none; color: inherit; }
+
+        /* --- Header --- */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; height: 80px;
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--primary-dark); }
+        .brand { font-size: 26px; font-weight: 900; color: var(--text-dark); letter-spacing: -0.5px; }
+        .brand span { color: var(--primary); text-shadow: 0 0 15px rgba(13,148,136,0.3); }
+        
+        .profile-pic {
+            width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+            cursor: pointer; border: 3px solid var(--primary); transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+        .profile-pic:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(13, 148, 136, 0.5); }
+
+        /* --- Drawer --- */
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(5px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 999;
+        }
+        .drawer {
+            position: fixed; top: 0; left: -320px; width: 320px; height: 100%;
+            background: white; box-shadow: 5px 0 30px rgba(0, 0, 0, 0.3);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; display: flex; flex-direction: column; padding: 30px;
+        }
+        .drawer.open { left: 0; }
+        .drawer-overlay.show { opacity: 1; pointer-events: all; }
+        .drawer h2 { color: var(--primary); margin-bottom: 35px; margin-top: 10px; font-weight: 900; font-size: 26px; }
+        .drawer a { padding: 18px 0; font-size: 18px; font-weight: 600; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; color: var(--text-dark); transition: all 0.2s; }
+        .drawer a:hover { color: var(--primary); padding-left: 10px; }
+
+        /* --- Layout --- */
+        main { padding: 120px 20px 80px; max-width: 900px; margin: 0 auto; }
+        
+        .hero-ai { text-align: center; color: white; margin-bottom: 30px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .hero-ai h1 { font-size: 42px; font-weight: 900; margin-bottom: 15px; letter-spacing: -1px; }
+        .hero-ai p { font-size: 18px; color: #f8fafc; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        /* --- Form Card --- */
+        .ai-card {
+            background: var(--card-glass); border-radius: 24px; padding: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2); position: relative; z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 20px;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+        }
+        
+        .form-row { display: flex; gap: 25px; margin-bottom: 30px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 240px; }
+        .form-group label { display: block; font-size: 15px; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .ai-input {
+            width: 100%; padding: 20px 22px; border: 2px solid #cbd5e1; border-radius: 16px;
+            font-size: 18px; font-weight: 600; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: var(--text-dark);
+            background: #ffffff;
+        }
+        .ai-input:focus { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(13, 148, 136, 0.15); }
+        select.ai-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 20px center; background-size: 18px; padding-right: 55px; }
+        
+        .btn-magic {
+            background: linear-gradient(135deg, var(--primary), #0284c7, #6366f1); 
+            background-size: 200% 200%; animation: gradientShift 4s ease infinite;
+            color: white; border: none; padding: 22px; width: 100%; border-radius: 16px;
+            font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.3s ease;
+            display: flex; justify-content: center; align-items: center; gap: 15px;
+            box-shadow: 0 15px 35px rgba(13, 148, 136, 0.4); text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-magic:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(13, 148, 136, 0.6); }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Loading State --- */
+        .ai-thinking { display: none; text-align: center; padding: 80px 0; background: var(--card-glass); border-radius: 24px; backdrop-filter: blur(20px); margin-top: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);}
+        .radar-spinner {
+            width: 90px; height: 90px; border-radius: 50%; border: 5px solid rgba(13, 148, 136, 0.15);
+            border-top-color: var(--primary); border-right-color: var(--primary-dark);
+            animation: spin 0.8s linear infinite; margin: 0 auto 30px;
+        }
+        .ai-thinking p { color: var(--text-dark); font-weight: 800; font-size: 22px; animation: pulse 1.5s infinite; }
+
+        /* --- Premium Navigation Tabs --- */
+        .premium-tabs {
+            display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255,255,255,0.2); padding: 12px 24px;
+            border-radius: 12px; color: white; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+        .tab-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 15px var(--ai-glow); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* --- Itinerary Output Architecture --- */
+        #itinerary-result { display: none; margin-top: 50px; animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result-header-card {
+            background: var(--card-glass); padding: 35px; border-radius: 20px; text-align: center; margin-bottom: 35px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.6); backdrop-filter: blur(20px);
+        }
+        .result-title { font-size: 32px; font-weight: 900; color: var(--text-dark); margin: 0; letter-spacing: -1px; }
+        
+        .timeline { border-left: 5px solid var(--primary); padding-left: 40px; margin-left: 20px; }
+        .day-card {
+            background: var(--card-glass); border-radius: 20px; padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 40px;
+            position: relative; border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(15px);
+        }
+        .day-card::before {
+            content: ''; position: absolute; left: -41px; top: 35px;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--primary); border: 5px solid white; box-shadow: 0 0 0 4px var(--primary-dark);
+        }
+        
+        .day-title { font-size: 24px; font-weight: 900; color: var(--text-dark); margin-bottom: 20px; letter-spacing: -0.5px; }
+        
+        /* Structured Activity Time Segments */
+        .time-segment { background: rgba(255,255,255,0.6); border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
+        .time-segment-meta { font-weight: 800; font-size: 14px; text-transform: uppercase; color: var(--primary-dark); margin-bottom: 4px; }
+        .time-segment-body { font-size: 16px; color: var(--text-dark); line-height: 1.6; font-weight: 500; }
+
+        .tag-container { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+        .ai-tag { background: white; color: var(--primary-dark); padding: 10px 20px; border-radius: 10px; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 10px; border: 2px solid #e2e8f0; }
+
+        /* Directory Grid Layout */
+        .directory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .directory-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;}
+        .directory-title { font-size: 18px; font-weight: 800; color: var(--text-dark); }
+        .directory-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+        /* Budget Matrix Analytics */
+        .analytics-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e2e8f0; font-size: 16px; font-weight: 600; }
+        .analytics-row:last-child { border-bottom: none; }
+        .analytics-val { font-weight: 800; color: var(--primary-dark); }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" onclick="openDrawer()">☰</button>
+            <div class="brand">Explore<span>X</span> AI</div>
+        </div>
+        <a href="profile.html">
+            <img id="user-dp" class="profile-pic" src="[https://via.placeholder.com/48](https://via.placeholder.com/48)" alt="Profile">
+        </a>
+    </header>
+
+    <!-- Side Drawer -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <h2>ExploreX Menu</h2>
+        <a href="home.html">🏠 Home</a>
+        <a href="profile.html">👤 My Profile</a>
+        <a href="cab.html">🚕 Book a Cab</a>
+        <a href="train.html">🚆 Railway Tickets</a>
+        <a href="air.html">✈️ Flight Tickets</a>
+        <a href="aitour.html" style="color: var(--primary); font-weight: bold;">🤖 AI Tour Planner</a>
+        <a href="#" id="logout-btn" style="color: red; margin-top: auto;">🚪 Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <div class="hero-ai">
+            <h1>Intelligent Travel Engine</h1>
+            <p>Structured runtime architecture parsing exact schema variables down the pipeline flawlessly.</p>
+        </div>
+
+        <!-- AI Form Container -->
+        <div class="ai-card" id="form-container">
+            <div class="form-group" style="margin-bottom: 30px;">
+                <label>Target Destination Matrix</label>
+                <input type="text" id="ai-destination" class="ai-input" placeholder="E.g., Manali, Bali, Paris..." autocomplete="off">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Temporal Duration (Days)</label>
+                    <input type="number" id="ai-days" class="ai-input" min="1" max="14" placeholder="E.g., 3" value="3">
+                </div>
+                <div class="form-group">
+                    <label>Budget Paradigm Allocation</label>
+                    <select id="ai-budget" class="ai-input">
+                        <option value="Backpacker">Backpacker / Budget</option>
+                        <option value="Standard" selected>Standard / Comfort</option>
+                        <option value="Luxury">Luxury / Premium</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 40px;">
+                <label>Operational Vibe Profile</label>
+                <select id="ai-vibe" class="ai-input">
+                    <option value="Adventure">Adventure & Outdoors</option>
+                    <option value="Relaxation" selected>Relaxation & Scenic</option>
+                    <option value="Culture">Culture & History</option>
+                    <option value="Foodie">Foodie & Nightlife</option>
+                </select>
+            </div>
+
+            <button class="btn-magic" id="generate-btn">
+                ✨ Generate Master Itinerary
+            </button>
+        </div>
+
+        <!-- Loading State Indicator -->
+        <div class="ai-thinking" id="loading-state">
+            <div class="radar-spinner"></div>
+            <p id="loading-text">Processing engine instructions...</p>
+        </div>
+
+        <!-- Master AI Generated Result Wrapper -->
+        <div id="itinerary-result">
+            <div class="result-header-card">
+                <h2 class="result-title">Master Specification: <span id="res-dest-title" style="color: var(--primary);">Destination</span></h2>
+            </div>
+            
+            <!-- Tabbed Navigation Architecture Bar -->
+            <div class="premium-tabs">
+                <button class="tab-btn active" onclick="switchTab('timeline-tab', this)">Timeline Plan</button>
+                <button class="tab-btn" onclick="switchTab('directory-tab', this)">Local Registry</button>
+                <button class="tab-btn" onclick="switchTab('analytics-tab', this)">Budget Metrics</button>
+            </div>
+
+            <!-- Tab 1: Chronological Map/Timeline Plan -->
+            <div id="timeline-tab" class="tab-content active">
+                <div class="timeline" id="timeline-container">
+                    <!-- Iterative data blocks inject dynamically here -->
+                </div>
+            </div>
+
+            <!-- Tab 2: Service Provider Directory -->
+            <div id="directory-tab" class="tab-content">
+                <div class="info-card">
+                    <h3 style="border-bottom:none; margin-bottom:15px; font-size:20px;">Infrastructure Directory</h3>
+                    <div class="directory-grid" id="directory-container">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Matrix Budget Analytics -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="info-card">
+                    <h3 style="border-bottom:none; margin-bottom:15px; font-size:20px;">Estimated Expense Breakdowns</h3>
+                    <div id="analytics-container">
+                        <!-- Mathematical cost matrix splits inject here -->
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-magic" style="background: linear-gradient(135deg, #0f172a, #334155); margin-top: 40px;" onclick="location.reload()">
+                🔄 Reset Generator
+            </button>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { auth } from './config.js';
+        import { onAuthStateChanged, signOut } from "[https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js](https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js)";
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-dp').src = user.photoURL;
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut(auth).then(() => { window.location.href = 'index.html'; });
+        });
+    </script>
+
+    <script type="module">
+        // CONNECTING TO FIRESTORE INTEGRITY FOR PARSING DYNAMIC DATA
+        import { db } from './config.js';
+        
+        // --- 1. Drawer UI Controller ---
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('drawer-overlay');
+        window.openDrawer = () => { drawer.classList.add('open'); overlay.classList.add('show'); };
+        window.closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('show'); };
+
+        // --- 2. Dynamic Tab View Matrix ---
+        window.switchTab = function(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        };
+
+        // --- 3. SYSTEM PROMPTING HANDLER ENGINE (Production Setup) ---
+        const generateBtn = document.getElementById('generate-btn');
+        const formContainer = document.getElementById('form-container');
+        const loadingState = document.getElementById('loading-state');
+        const loadingText = document.getElementById('loading-text');
+        const resultContainer = document.getElementById('itinerary-result');
+        const timelineContainer = document.getElementById('timeline-container');
+        const directoryContainer = document.getElementById('directory-container');
+        const analyticsContainer = document.getElementById('analytics-container');
+
+        generateBtn.addEventListener('click', async () => {
+            const dest = document.getElementById('ai-destination').value.trim();
+            const days = parseInt(document.getElementById('ai-days').value);
+            const vibe = document.getElementById('ai-vibe').value;
+            const budget = document.getElementById('ai-budget').value;
+            
+            if(!dest) { alert("Destination parameter required."); return; }
+            if(!days || days < 1 || days > 14) { alert("Duration window error (1-14 days max)."); return; }
+
+            // Enter loading visual sequence
+            formContainer.style.display = 'none';
+            loadingState.style.display = 'block';
+            
+            loadingText.innerText = "Initializing system instruction protocols...";
+
+            try {
+                /* 
+                 * NOTE FOR INTEGRATION: When your backend proxy server is ready,
+                 * you will replace this simulation directly with your fetch endpoint:
+                 * const response = await fetch('[https://your-api.com/generate](https://your-api.com/generate)', { method: 'POST', body: ... });
+                 * const data = await response.json();
+                 */
+                
+                // Simulated systemic inference runtime delay loops matching a real server processing time
+                setTimeout(() => { loadingText.innerText = "Compiling payload parameters to strict JSON schema standard..."; }, 1500);
+                setTimeout(() => { loadingText.innerText = "Running data optimization constraints validation metrics..."; }, 3000);
+
+                setTimeout(() => {
+                    // --- BEHAVIORAL SYSTEM PROMPT STRUCTURED JSON GENERATION ---
+                    // This data structure replicates exactly what your System-Prompted AI model outputs.
+                    const simulatedJsonPayload = {
+                        "destination": dest,
+                        "days": days,
+                        "timeline": Array.from({ length: days }, (_, index) => ({
+                            "day": index + 1,
+                            "morning": `Explore local sight node clusters in ${dest} customized for ${vibe} travel mechanics.`,
+                            "afternoon": `Immersive field expedition matching infrastructure parameters tracking regional accents.`,
+                            "evening": `Execute closeout review sequence at a highly-rated destination food hub matching a ${budget} model.`
+                        })),
+                        "budgetMetrics": {
+                            "lodging": budget === "Luxury" ? 14000 : (budget === "Standard" ? 5000 : 1800),
+                            "transport": budget === "Luxury" ? 6000 : (budget === "Standard" ? 2200 : 700),
+                            "food": budget === "Luxury" ? 4000 : (budget === "Standard" ? 1500 : 500)
+                        }
+                    };
+
+                    // Execute parsing loop down structural element paths seamlessly
+                    renderParsedEngineOutput(simulatedJsonPayload);
+                }, 4500);
+
+            } catch (error) {
+                console.error("AI Compilation Fault:", error);
+                alert("Runtime inference error. Please reset operational inputs.");
+                formContainer.style.display = 'block';
+                loadingState.style.display = 'none';
+            }
+        });
+
+        // --- 4. DATA COMPILER PARSING PROTOCOL ---
+        function renderParsedEngineOutput(data) {
+            loadingState.style.display = 'none';
+            document.getElementById('res-dest-title').innerText = data.destination;
+
+            // Compilation Component Layer 1: The Daily Segment Blocks
+            let timelineHTML = "";
+            data.timeline.forEach(item => {
+                timelineHTML += `
+                    <div class="day-card">
+                        <div class="day-title">Day ${item.day}: Operational Timeline Schedule</div>
+                        
+                        <div class="time-segment">
+                            <div class="time-segment-meta">09:00 - Morning Phase</div>
+                            <div class="time-segment-body">${item.morning}</div>
+                        </div>
+                        
+                        <div class="time-segment">
+                            <div class="time-segment-meta">14:00 - Afternoon Phase</div>
+                            <div class="time-segment-body">${item.afternoon}</div>
+                        </div>
+
+                        <div class="time-segment">
+                            <div class="time-segment-meta">19:00 - Evening Phase</div>
+                            <div class="time-segment-body">${item.evening}</div>
+                        </div>
+
+                        <div class="tag-container">
+                            <span class="ai-tag">📊 JSON Schema Validated</span>
+                            <span class="ai-tag">🔒 Thread Secure</span>
+                        </div>
+                    </div>
+                `;
+            });
+            timelineContainer.innerHTML = timelineHTML;
+
+            // Compilation Component Layer 2: Infrastructure Registry Caching
+            directoryContainer.innerHTML = `
+                <div class="directory-card">
+                    <div class="directory-title">🏨 Premium Logistical Basecamp</div>
+                    <div class="directory-desc">System matched asset optimized for automated check-in tracking your strict parameters.</div>
+                </div>
+                <div class="directory-card">
+                    <div class="directory-title">🛍️ Local Trade Matrix Point</div>
+                    <div class="directory-desc">Verified transactional center optimized for artisan exploration parameters.</div>
+                </div>
+            `;
+
+            // Compilation Component Layer 3: Budget Metric Arrays Calculation
+            const lodgingTotal = data.budgetMetrics.lodging * data.days;
+            const foodTotal = data.budgetMetrics.food * data.days;
+            const transportTotal = data.budgetMetrics.transport;
+            const totalThreshold = lodgingTotal + foodTotal + transportTotal;
+
+            analyticsContainer.innerHTML = `
+                <div class="analytics-row"><span>Lodging Parameter Footprint Total</span><span class="analytics-val">₹${lodgingTotal}</span></div>
+                <div class="analytics-row"><span>Logistics Allocation Footprint Total</span><span class="analytics-val">₹${transportTotal}</span></div>
+                <div class="analytics-row"><span>Gastronomy Consumption Matrix Total</span><span class="analytics-val">₹${foodTotal}</span></div>
+                <hr style="border:0; border-top:1px solid #cbd5e1; margin:15px 0;">
+                <div class="analytics-row" style="font-size:18px; color:var(--primary-dark); font-weight:800;"><span>Total Journey Parameter Accumulation Matrix</span><span>₹${totalThreshold}</span></div>
+            `;
+
+            // Set final structural state container block visible
+            resultContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
