@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExploreX | Your Ultimate Tour Guide</title>
+    <style>
+        /* CSS Variables for Professional Meta/Travel Palette */
+        :root {
+            --primary-teal: #0d9488;
+            --primary-teal-hover: #0f766e;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --google-blue: #4285F4;
+            --google-blue-hover: #357ae8;
+            --bg-card: rgba(255, 255, 255, 0.97);
+        }
+
+        /* Fullscreen Background & Centering */
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            /* High-quality travel background with a subtle dark overlay for readability */
+            background: linear-gradient(rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.5)), 
+                        url('http://googleusercontent.com/image_collection/image_retrieval/12445263798329161521') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Modern Glass/Solid Card */
+        .card {
+            background: var(--bg-card);
+            padding: 2.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Brand Typography */
+        h1 {
+            color: var(--primary-teal);
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        h2 {
+            color: var(--text-dark);
+            font-size: 20px;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        /* Buttons */
+        button {
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #google-login-btn {
+            background-color: var(--google-blue);
+            color: white;
+            box-shadow: 0 4px 6px rgba(66, 133, 244, 0.3);
+        }
+        #google-login-btn:hover { 
+            background-color: var(--google-blue-hover); 
+            transform: translateY(-1px);
+        }
+
+        #save-profile-btn {
+            background-color: var(--primary-teal);
+            color: white;
+            margin-top: 15px;
+        }
+        #save-profile-btn:hover {
+            background-color: var(--primary-teal-hover);
+        }
+        
+        /* Profile Section Styling */
+        #profile-section { 
+            display: none; 
+            animation: fadeIn 0.4s ease;
+        }
+        
+        #user-dp {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            object-fit: cover;
+            border: 3px solid var(--primary-teal);
+            padding: 2px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            color: var(--text-dark);
+            transition: border 0.2s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        /* Small fade animation when switching states */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>ExploreX</h1>
+        
+        <div id="login-section">
+            <h2>Your Ultimate Tour Guide</h2>
+            <p>Sign in to start your next adventure</p>
+            
+            <button id="google-login-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <div id="profile-section">
+            <h2>Welcome Traveler!</h2>
+            <p>Let's set up your profile</p>
+            <img id="user-dp" src="" alt="Profile Picture">
+            <input type="text" id="user-name" placeholder="Enter your full name">
+            <button id="save-profile-btn">Start Exploring</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './config.js';
+        import { GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+        import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        const provider = new GoogleAuthProvider();
+        let currentUser = null; 
+
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const profileSection = document.getElementById('profile-section');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        const userDp = document.getElementById('user-dp');
+        const userNameInput = document.getElementById('user-name');
+
+        // 1. Handle Google Login Click
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                // Quick visual feedback
+                googleLoginBtn.innerHTML = "Signing in...";
+                
+                const result = await signInWithPopup(auth, provider);
+                currentUser = result.user;
+                
+                // 2. Check if user document exists in Firestore
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    window.location.href = 'home.html';
+                } else {
+                    loginSection.style.display = 'none';
+                    profileSection.style.display = 'block';
+                    
+                    userDp.src = currentUser.photoURL;
+                    userNameInput.value = currentUser.displayName; 
+                }
+            } catch (error) {
+                console.error("Error during sign-in:", error);
+                alert("Failed to sign in. Please try again.");
+                googleLoginBtn.innerHTML = "Continue with Google"; // Reset button text
+            }
+        });
+
+        // 3. Handle Save Profile Click 
+        saveProfileBtn.addEventListener('click', async () => {
+            const finalName = userNameInput.value.trim();
+            
+            if (!finalName) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            try {
+                saveProfileBtn.innerHTML = "Saving...";
+                const userRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userRef, {
+                    name: finalName,
+                    email: currentUser.email,
+                    photoURL: currentUser.photoURL,
+                    uid: currentUser.uid,
+                    createdAt: new Date()
+                });
+                
+                window.location.href = 'home.html';
+                
+            } catch (error) {
+                console.error("Error saving user data:", error);
+                alert("Failed to save profile.");
+                saveProfileBtn.innerHTML = "Start Exploring";
+            }
+        });
+    </script>
+</body>
+</html>

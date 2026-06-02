@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Home | ExploreX</title>
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        /* --- CSS Variables & Resets --- */
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* --- Skeleton Loading Animation --- */
+        .skeleton {
+            background: #e2e8f0;
+            background: linear-gradient(110deg, #e2e8f0 8%, #f1f5f9 18%, #e2e8f0 33%);
+            background-size: 200% 100%;
+            animation: 1.5s shimmer linear infinite;
+            color: transparent !important;
+            pointer-events: none;
+        }
+        .skeleton * { visibility: hidden; }
+        @keyframes shimmer { to { background-position-x: -200%; } }
+
+        /* --- Header (App Bar) --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 70px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--primary); }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+        
+        .profile-pic {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--primary);
+            transition: transform 0.2s;
+        }
+        .profile-pic:hover { transform: scale(1.05); }
+
+        /* --- Side Panel (Drawer) --- */
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+        }
+        .drawer {
+            position: fixed; top: 0; left: -300px; width: 280px; height: 100%;
+            background: white; box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            transition: left 0.3s ease; z-index: 1000;
+            display: flex; flex-direction: column; padding: 20px;
+        }
+        .drawer.open { left: 0; }
+        .drawer-overlay.show { opacity: 1; pointer-events: all; }
+        .drawer h2 { color: var(--primary); margin-bottom: 30px; margin-top: 10px;}
+        .drawer a {
+            padding: 15px 0; font-size: 16px; font-weight: 500;
+            border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;
+        }
+
+        /* --- PWA Install Banner --- */
+        #install-banner {
+            display: none; background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 15px 20px; text-align: center;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.3); z-index: 90;
+            align-items: center; justify-content: space-between;
+        }
+        #install-banner button {
+            background: white; color: var(--primary); border: none;
+            padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+
+        /* --- Main Content & Hero --- */
+        main { padding: 90px 20px 40px; max-width: 1200px; margin: 0 auto; }
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80') center/cover;
+            height: 200px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-align: center; margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+
+        /* --- Search / Journey Planner Card --- */
+        .search-card {
+            background: white; border-radius: 16px; padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px;
+            position: relative; z-index: 10; border: 1px solid #e2e8f0;
+        }
+        .search-card h2 { color: var(--text-dark); margin-bottom: 20px; font-size: 20px;}
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+        .input-group input { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; outline: none; transition: border 0.2s; color: var(--text-dark);}
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1); }
+        
+        .search-btn { 
+            background: var(--primary); color: white; border: none; padding: 15px; 
+            width: 100%; border-radius: 8px; font-size: 16px; font-weight: 600; 
+            cursor: pointer; transition: 0.2s; 
+        }
+        .search-btn:hover { background: var(--primary-dark); }
+        
+        /* Autocomplete Suggestions Styling */
+        .suggestions-list {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-height: 200px; overflow-y: auto; z-index: 20; display: none; margin-top: 5px;
+            border: 1px solid #eee;
+        }
+        .suggestion-item { padding: 14px 15px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 15px; color: var(--text-dark);}
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: var(--bg-light); color: var(--primary); font-weight: 500;}
+
+        /* --- Dynamic Results Section (Data from Admin) --- */
+        #results-container { display: none; margin-bottom: 40px; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        .result-header h2 { font-size: 22px; margin: 0; }
+        .distance-badge { background: white; color: var(--primary); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+
+        .info-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .info-card h3 { margin: 0 0 10px 0; color: var(--text-dark); font-size: 18px; border-bottom: 2px solid var(--bg-light); padding-bottom: 10px;}
+        .info-card p { color: var(--text-muted); font-size: 15px; line-height: 1.5; margin: 0;}
+
+        .entity-list { display: flex; flex-direction: column; gap: 10px; }
+        .entity-card { background: var(--bg-light); padding: 15px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px;}
+        .entity-card .title { font-weight: 600; color: var(--primary-dark); font-size: 16px; }
+        .entity-card .detail { font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-between;}
+        .entity-card a { color: var(--primary); font-size: 13px; font-weight: bold; text-decoration: underline; margin-top: 5px; display: inline-block;}
+
+        /* --- Travel Sections (Grid) --- */
+        .section-title { font-size: 20px; margin-bottom: 15px; color: var(--text-dark); font-weight: 700; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card {
+            background: white; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; opacity: 0; transform: translateY(20px); 
+        }
+        .card.show { opacity: 1; transform: translateY(0); }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
+        
+        .card-img { width: 100%; height: 160px; object-fit: cover; }
+        .card-content { padding: 20px; }
+        .card-content h3 { margin: 0 0 10px 0; font-size: 18px; color: var(--primary-dark); }
+        .card-content p { font-size: 14px; color: var(--text-muted); margin-bottom: 15px; }
+        .card-btn {
+            display: inline-block; width: 100%; text-align: center;
+            background: var(--primary); color: white; padding: 12px;
+            border-radius: 8px; font-weight: 600; transition: background 0.2s;
+        }
+        .card:hover .card-btn { background: var(--primary-dark); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" onclick="openDrawer()">☰</button>
+            <div class="brand">ExploreX</div>
+        </div>
+        <a href="profile.html">
+            <img id="user-dp" class="profile-pic skeleton" src="" alt="Profile">
+        </a>
+    </header>
+
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <h2>ExploreX Menu</h2>
+        <a href="home.html">🏠 Home</a>
+        <a href="profile.html">👤 My Profile</a>
+        <a href="cab.html">🚕 Book a Cab</a>
+        <a href="train.html">🚆 Railway Tickets</a>
+        <a href="air.html">✈️ Flight Tickets</a>
+        <a href="aitour.html">🤖 AI Tour Planner</a>
+        <a href="#" id="logout-btn" style="color: red; margin-top: auto;">🚪 Logout</a>
+    </div>
+
+    <main>
+        <div class="hero skeleton" id="hero-banner">
+            <div>
+                <h1>Where to next?</h1>
+                <p>Your journey begins here.</p>
+            </div>
+        </div>
+
+        <div class="search-card skeleton" id="search-card">
+            <h2>Plan Your Route</h2>
+            
+            <div class="input-group">
+                <label>From Place</label>
+                <input type="text" id="from-input" placeholder="Enter starting location..." autocomplete="off">
+                <div class="suggestions-list" id="from-suggestions"></div>
+            </div>
+
+            <div class="input-group">
+                <label>To Place</label>
+                <input type="text" id="to-input" placeholder="Enter destination..." autocomplete="off">
+                <div class="suggestions-list" id="to-suggestions"></div>
+            </div>
+
+            <button class="search-btn" id="search-route-btn">Find Routes & Places</button>
+        </div>
+
+        <div id="results-container">
+            <div class="result-header">
+                <h2>Journey Details</h2>
+                <div class="distance-badge" id="res-distance">Calculating...</div>
+            </div>
+
+            <div class="info-card" style="background: transparent; border: none; box-shadow: none; padding: 0; margin-bottom: 30px;">
+                <h3 style="border-bottom: none; font-size: 20px; color: var(--text-dark); margin-bottom: 15px;">Book Your Transport</h3>
+                <div class="grid" id="dynamic-transport-grid">
+                    </div>
+            </div>
+
+            <div class="info-card">
+                <h3>Famous Things to Do</h3>
+                <p id="res-things">Nothing specified.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Famous Local Food</h3>
+                <p id="res-food">Nothing specified.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Available Hotels</h3>
+                <div class="entity-list" id="res-hotels">
+                    </div>
+            </div>
+
+            <div class="info-card">
+                <h3>Local Shops & Specialties</h3>
+                <div class="entity-list" id="res-shops">
+                    </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Explore More</h2>
+        <div class="grid">
+            <div class="card skeleton" onclick="window.location.href='aitour.html'">
+                <img class="card-img" src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?auto=format&fit=crop&w=600&q=80" loading="lazy" alt="AI">
+                <div class="card-content">
+                    <h3>AI Tour Planner</h3>
+                    <p>Let AI curate the perfect itinerary for you based on your interests.</p>
+                    <div class="card-btn">Plan with AI</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="install-banner">
+        <span>Install ExploreX App</span>
+        <button id="install-btn">Install</button>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+        // IMPORTING QUERY AND WHERE TO FETCH ACTUAL DATA
+        import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        // 1. Firebase Authentication State & Skeleton Removal
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const dp = document.getElementById('user-dp');
+                dp.src = user.photoURL;
+                
+                setTimeout(() => {
+                    dp.classList.remove('skeleton');
+                    document.getElementById('hero-banner').classList.remove('skeleton');
+                    document.getElementById('search-card').classList.remove('skeleton');
+                    document.querySelectorAll('.card').forEach(card => card.classList.remove('skeleton'));
+                }, 300); 
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Logout logic
+        document.getElementById('logout-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut(auth).then(() => { window.location.href = 'index.html'; });
+        });
+
+        // 2. Fetch Complete Places Data from Firestore
+        let availablePlaces = [];
+        
+        async function fetchPlaces() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "places"));
+                availablePlaces = []; 
+                querySnapshot.forEach((doc) => {
+                    // STORE THE ENTIRE OBJECT SO WE HAVE IDS, DISTANCES, FOOD, ETC.
+                    availablePlaces.push({
+                        id: doc.id,
+                        name: doc.data().name,
+                        distances: doc.data().distances || {},
+                        food: doc.data().food || "No food specified.",
+                        things: doc.data().things || "No attractions specified."
+                    });
+                });
+            } catch (error) {
+                console.error("Error fetching places:", error);
+            }
+        }
+        
+        fetchPlaces();
+
+        // 3. Autocomplete Setup Logic
+        function setupAutocomplete(inputId, suggestionsBoxId) {
+            const input = document.getElementById(inputId);
+            const suggestionsBox = document.getElementById(suggestionsBoxId);
+
+            input.addEventListener('input', () => {
+                const val = input.value.toLowerCase().trim();
+                suggestionsBox.innerHTML = '';
+                
+                if (!val) {
+                    suggestionsBox.style.display = 'none';
+                    return;
+                }
+
+                // Filter based on place name
+                const matches = availablePlaces.filter(place => 
+                    place.name.toLowerCase().includes(val)
+                );
+                
+                if (matches.length > 0) {
+                    suggestionsBox.style.display = 'block';
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = match.name;
+                        
+                        div.addEventListener('click', () => {
+                            input.value = match.name;
+                            suggestionsBox.style.display = 'none';
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target !== input && e.target !== suggestionsBox) {
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+        }
+
+        setupAutocomplete('from-input', 'from-suggestions');
+        setupAutocomplete('to-input', 'to-suggestions');
+
+        // 4. THE REAL SEARCH LOGIC: Pull Data from Firestore & Render Transport Cards dynamically
+        document.getElementById('search-route-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('search-route-btn');
+            const fromName = document.getElementById('from-input').value.trim();
+            const toName = document.getElementById('to-input').value.trim();
+            
+            if(!fromName || !toName) {
+                alert("Please select both 'From' and 'To' locations.");
+                return;
+            }
+
+            // Find the full place objects from our fetched data
+            const fromPlace = availablePlaces.find(p => p.name.toLowerCase() === fromName.toLowerCase());
+            const toPlace = availablePlaces.find(p => p.name.toLowerCase() === toName.toLowerCase());
+
+            if (!fromPlace || !toPlace) {
+                alert("Could not find database entries for these locations. Please select from the dropdown.");
+                return;
+            }
+
+            // Show loading state
+            btn.innerHTML = "Pulling data from Database...";
+            
+            // Calculate Distance
+            let distance = "Distance not set";
+            if (fromPlace.distances[toPlace.id]) {
+                distance = fromPlace.distances[toPlace.id] + " KM";
+            } else if (toPlace.distances[fromPlace.id]) {
+                distance = toPlace.distances[fromPlace.id] + " KM";
+            }
+
+            // Populate Place Info
+            document.getElementById('res-distance').innerText = distance;
+            document.getElementById('res-things').innerText = toPlace.things || "No attractions specified in admin.";
+            document.getElementById('res-food').innerText = toPlace.food || "No food specified in admin.";
+
+            // --- INJECT DYNAMIC TRANSPORT CARDS WITH URL FORWARDING ---
+            const encodedFrom = encodeURIComponent(fromPlace.name);
+            const encodedTo = encodeURIComponent(toPlace.name);
+            
+            document.getElementById('dynamic-transport-grid').innerHTML = `
+                <div class="card show" onclick="window.location.href='cab.html?from=${encodedFrom}&to=${encodedTo}'">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=600&q=80" loading="lazy" alt="Cab">
+                    <div class="card-content">
+                        <h3>Cab Travel</h3>
+                        <p>Book local & outstation cabs from ${fromPlace.name} to ${toPlace.name}.</p>
+                        <div class="card-btn">Book Cab</div>
+                    </div>
+                </div>
+
+                <div class="card show" onclick="window.location.href='train.html?from=${encodedFrom}&to=${encodedTo}'">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=600&q=80" loading="lazy" alt="Train">
+                    <div class="card-content">
+                        <h3>Railway Travel</h3>
+                        <p>Check schedules and book trains to ${toPlace.name}.</p>
+                        <div class="card-btn">Book Train</div>
+                    </div>
+                </div>
+
+                <div class="card show" onclick="window.location.href='air.html?from=${encodedFrom}&to=${encodedTo}'">
+                    <img class="card-img" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80" loading="lazy" alt="Flight">
+                    <div class="card-content">
+                        <h3>Air Travel</h3>
+                        <p>Find the best flights flying into ${toPlace.name}.</p>
+                        <div class="card-btn">Book Flight</div>
+                    </div>
+                </div>
+            `;
+
+            try {
+                // Fetch Hotels
+                const hotelsQ = query(collection(db, "hotels"), where("placeId", "==", toPlace.id));
+                const hotelsSnap = await getDocs(hotelsQ);
+                const hotelsContainer = document.getElementById('res-hotels');
+                hotelsContainer.innerHTML = "";
+
+                if (hotelsSnap.empty) {
+                    hotelsContainer.innerHTML = "<p>No hotels found for this location.</p>";
+                } else {
+                    hotelsSnap.forEach(doc => {
+                        const h = doc.data();
+                        hotelsContainer.innerHTML += `
+                            <div class="entity-card">
+                                <span class="title">🏨 ${h.name}</span>
+                                <span class="detail"><span>Price (Single): ₹${h.priceSingle || '--'}</span> <span>AC: ₹${h.priceAc || '--'}</span></span>
+                                <span class="detail">📞 ${h.mobile || 'No contact provided'}</span>
+                                ${h.mapUrl ? `<a href="${h.mapUrl}" target="_blank">View on Map</a>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                // Fetch Shops
+                const shopsQ = query(collection(db, "shops"), where("placeId", "==", toPlace.id));
+                const shopsSnap = await getDocs(shopsQ);
+                const shopsContainer = document.getElementById('res-shops');
+                shopsContainer.innerHTML = "";
+
+                if (shopsSnap.empty) {
+                    shopsContainer.innerHTML = "<p>No shops found for this location.</p>";
+                } else {
+                    shopsSnap.forEach(doc => {
+                        const s = doc.data();
+                        shopsContainer.innerHTML += `
+                            <div class="entity-card">
+                                <span class="title">🛍️ ${s.name}</span>
+                                <span class="detail" style="color:var(--text-dark);"><strong>Famous for:</strong> ${s.famousItems || 'Various items'}</span>
+                                <span class="detail">📞 ${s.mobile || 'No contact provided'}</span>
+                                ${s.mapUrl ? `<a href="${s.mapUrl}" target="_blank">View on Map</a>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                // Display the container
+                document.getElementById('results-container').style.display = 'block';
+
+            } catch (error) {
+                console.error("Error fetching related entities:", error);
+                alert("Failed to load hotels and shops.");
+            }
+
+            // Reset button text
+            btn.innerHTML = "Find Routes & Places";
+        });
+
+    </script>
+
+    <script>
+        // Side Panel (Drawer) Logic with Mobile Back Button Support
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('drawer-overlay');
+
+        function openDrawer() {
+            drawer.classList.add('open');
+            overlay.classList.add('show');
+            history.pushState({ drawerOpen: true }, "");
+        }
+
+        function closeDrawer() {
+            drawer.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        window.addEventListener('popstate', (e) => {
+            if (drawer.classList.contains('open')) closeDrawer();
+        });
+
+        // Scroll Animation (Intersection Observer)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        setTimeout(() => {
+            document.querySelectorAll('.card').forEach(card => observer.observe(card));
+        }, 100);
+
+        // PWA Install Prompt Logic
+        let deferredPrompt;
+        const installBanner = document.getElementById('install-banner');
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                installBanner.style.display = 'none';
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            }
+        });
+    </script>
+</body>
+</html>
