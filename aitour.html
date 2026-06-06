@@ -201,7 +201,8 @@
         <h2>ExploreX Menu</h2>
         <a href="home.html">🏠 Home</a>
         <a href="profile.html">👤 My Profile</a>
-        <a href="bus.html">🚌 Book a Bus</a> <a href="cab.html">🚕 Book a Cab</a>
+        <a href="bus.html">🚌 Book a Bus</a>
+        <a href="cab.html">🚕 Book a Cab</a>
         <a href="train.html">🚆 Railway Tickets</a>
         <a href="air.html">✈️ Flight Tickets</a>
         <a href="aitour.html" style="color: var(--primary); font-weight: bold; background: #f0fdfa; border-radius: 8px; padding-left: 10px;">🤖 AI Tour Planner</a>
@@ -211,7 +212,7 @@
     <main>
         <div class="hero-ai">
             <h1>Intelligent Travel Engine</h1>
-            <p>Structured runtime architecture parsing exact schema variables down the pipeline flawlessly.</p>
+            <p>Multi-turn conversational memory with interactive media synchronization.</p>
         </div>
 
         <div class="ai-card" id="form-container">
@@ -291,6 +292,20 @@
                 🔄 Reset Generator
             </button>
         </div>
+
+        <div id="conversational-chat-box" style="display: none; margin-top: 40px; background: rgba(255,255,255,0.95); border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); backdrop-filter: blur(20px);">
+            <h3 style="font-family: 'Outfit', sans-serif; color: #0f172a; margin-bottom: 15px; font-size: 22px;">💬 Refine your Itinerary</h3>
+            <p style="color: #475569; font-size: 14px; margin-bottom: 20px; font-weight: 500;">Ask the assistant to modify days, suggest restaurants, or change the budget tier dynamically.</p>
+            
+            <div id="chat-thread-log" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 14px; display: flex; flex-direction: column; gap: 12px;">
+                </div>
+
+            <div style="display: flex; gap: 15px;">
+                <input type="text" id="chat-followup-input" style="flex: 1; padding: 18px 20px; border: 2px solid #cbd5e1; border-radius: 14px; font-size: 16px; font-weight: 600; outline: none;" placeholder="e.g., Make day 3 morning less hectic...">
+                <button id="chat-submit-btn" style="background: #0ea5e9; color: white; border: none; padding: 0 30px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; text-transform: uppercase;">Send</button>
+            </div>
+        </div>
+
     </main>
 
     <script type="module">
@@ -329,7 +344,7 @@
             btnElement.classList.add('active');
         };
 
-        // --- 3. SYSTEM PROMPTING HANDLER ENGINE (Production Setup) ---
+        // --- 3. SYSTEM PROMPTING HANDLER ENGINE & MEMORY ---
         const generateBtn = document.getElementById('generate-btn');
         const formContainer = document.getElementById('form-container');
         const loadingState = document.getElementById('loading-state');
@@ -339,32 +354,67 @@
         const directoryContainer = document.getElementById('directory-container');
         const analyticsContainer = document.getElementById('analytics-container');
 
+        // Global memory array to handle multi-turn conversation and context awareness
+        let userConversationMemory = [];
+
         generateBtn.addEventListener('click', async () => {
+            // 1. Gather live DOM inputs before making the call
             const dest = document.getElementById('ai-destination').value.trim();
             const days = parseInt(document.getElementById('ai-days').value);
             const vibe = document.getElementById('ai-vibe').value;
             const budget = document.getElementById('ai-budget').value;
             
+            // 2. Prevent empty submissions
             if(!dest) { alert("Destination parameter required."); return; }
             if(!days || days < 1 || days > 14) { alert("Duration window error (1-14 days max)."); return; }
+            
+            // Memory Management: Track user intent for this turn
+            userConversationMemory.push(`User requested ${days} days in ${dest} with ${budget} budget.`);
 
-            // Enter loading visual sequence
+            // 3. Switch layout states for the loading animation
             formContainer.style.display = 'none';
             loadingState.style.display = 'block';
-            
             loadingText.innerText = "Initializing system instruction protocols...";
-
+            
             try {
-                // Simulated systemic inference runtime delay loops matching a real server processing time
-                setTimeout(() => { loadingText.innerText = "Compiling payload parameters to strict JSON schema standard..."; }, 1500);
-                setTimeout(() => { loadingText.innerText = "Running data optimization constraints validation metrics..."; }, 3000);
+                // Retrieve JWT Token from local storage (Assumes user logged in)
+                const jwtToken = localStorage.getItem('explorex_jwt') || "DUMMY_TOKEN_FOR_TESTING";
 
+                // 4. Send the payload parameters directly to your Node.js engine
+                const response = await fetch('http://localhost:3000/api/generate-tour', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}` // JWT Security Injection
+                    },
+                    body: JSON.stringify({
+                        destination: dest,
+                        days: days,
+                        budget: budget,
+                        vibe: vibe,
+                        conversationHistory: userConversationMemory // Multi-turn memory injection
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Backend connection failed or JWT invalid");
+                
+                // 5. Receive and parse the strict AI data layout (includes Media & NLP)
+                const serverResponse = await response.json();
+                
+                // 6. Push verified data down the pipeline into your structural DOM cards
+                renderParsedEngineOutput(serverResponse.data, serverResponse.media_reel);
+                
+            } catch (error) {
+                console.warn("AI Backend not responding, failing over to simulation mode...", error);
+                
+                // --- FAILSAFE SIMULATION IN CASE NODE.JS SERVER IS OFFLINE ---
+                // This guarantees the UI won't crash while you are still testing
                 setTimeout(() => {
-                    // --- BEHAVIORAL SYSTEM PROMPT STRUCTURED JSON GENERATION ---
-                    // This data structure replicates exactly what your System-Prompted AI model outputs.
                     const simulatedJsonPayload = {
                         "destination": dest,
                         "days": days,
+                        "conversationalGreeting": `I've put together a spectacular ${days}-day ${budget} tier plan for ${dest}. I focused on ${vibe} elements just like you asked! Let me know if you want to tweak anything.`,
+                        "smartSuggestions": ["Best Time to Visit", "Local Etiquette", "Hidden Gem Spots"],
                         "timeline": Array.from({ length: days }, (_, index) => ({
                             "day": index + 1,
                             "morning": `Explore local sight node clusters in ${dest} customized for ${vibe} travel mechanics.`,
@@ -377,27 +427,134 @@
                             "food": budget === "Luxury" ? 4000 : (budget === "Standard" ? 1500 : 500)
                         }
                     };
-
-                    // Execute parsing loop down structural element paths seamlessly
-                    renderParsedEngineOutput(simulatedJsonPayload);
-                }, 4500);
-
-            } catch (error) {
-                console.error("AI Compilation Fault:", error);
-                alert("Runtime inference error. Please reset operational inputs.");
-                formContainer.style.display = 'block';
-                loadingState.style.display = 'none';
+                    renderParsedEngineOutput(simulatedJsonPayload, "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80");
+                }, 2000);
             }
         });
 
-        // --- 4. DATA COMPILER PARSING PROTOCOL ---
-        function renderParsedEngineOutput(data) {
+        // --- 4. MULTI-TURN CHAT HANDLER ---
+        document.getElementById('chat-submit-btn').addEventListener('click', async () => {
+            const followUpInput = document.getElementById('chat-followup-input');
+            const userMessage = followUpInput.value.trim();
+            if(!userMessage) return;
+
+            // Context Awareness: Capture user prompt update
+            userConversationMemory.push(`User adjustment: ${userMessage}`);
+            
+            // Append message to visual log view
+            appendChatMessage("You", userMessage);
+            followUpInput.value = ""; // clear input
+
+            // Show processing state
+            loadingState.style.display = 'block';
+            loadingText.innerText = "Processing intent parameters...";
+            resultContainer.style.display = 'none'; // hide old itinerary while loading
+
+            try {
+                const jwtToken = localStorage.getItem('explorex_jwt') || "DUMMY_TOKEN_FOR_TESTING";
+                
+                const dest = document.getElementById('ai-destination').value.trim();
+                const days = parseInt(document.getElementById('ai-days').value);
+                const vibe = document.getElementById('ai-vibe').value;
+                const budget = document.getElementById('ai-budget').value;
+
+                const response = await fetch('http://localhost:3000/api/generate-tour', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({
+                        destination: dest,
+                        days: days,
+                        budget: budget,
+                        vibe: vibe,
+                        conversationHistory: userConversationMemory // Full history context
+                    })
+                });
+
+                if (!response.ok) throw new Error("Conversation update failed");
+                const serverResponse = await response.json();
+
+                // Save AI response to conversational context history
+                userConversationMemory.push(`AI Response: ${serverResponse.data.conversationalGreeting}`);
+
+                // Update the timeline dynamically and show message confirmation
+                renderParsedEngineOutput(serverResponse.data, serverResponse.media_reel);
+                appendChatMessage("AI Assistant", serverResponse.data.conversationalGreeting);
+
+            } catch (error) {
+                console.warn("Multi-turn context fault, simulating response...", error);
+                
+                // Simulation fallback for the chat box
+                setTimeout(() => {
+                    const fallbackReply = "I have updated your itinerary based on your request!";
+                    userConversationMemory.push(`AI Response: ${fallbackReply}`);
+                    appendChatMessage("AI Assistant", fallbackReply);
+                    
+                    loadingState.style.display = 'none';
+                    resultContainer.style.display = 'block'; // bring back layout
+                }, 1500);
+            }
+        });
+
+        // Chat View Utility
+        function appendChatMessage(sender, text) {
+            const log = document.getElementById('chat-thread-log');
+            const msgElement = document.createElement('div');
+            const isAi = sender === "AI Assistant";
+            
+            msgElement.style.padding = "12px 16px";
+            msgElement.style.borderRadius = "12px";
+            msgElement.style.maxWidth = "80%";
+            msgElement.style.fontSize = "14px";
+            msgElement.style.fontWeight = "600";
+            
+            if(isAi) {
+                msgElement.style.background = "#e0f2fe";
+                msgElement.style.color = "#0369a1";
+                msgElement.style.alignSelf = "flex-start";
+            } else {
+                msgElement.style.background = "#0f172a";
+                msgElement.style.color = "#ffffff";
+                msgElement.style.alignSelf = "flex-end";
+            }
+            
+            msgElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            log.appendChild(msgElement);
+            log.scrollTop = log.scrollHeight; // Auto-scroll window view frame
+        }
+
+        // --- 5. DATA COMPILER PARSING PROTOCOL ---
+        function renderParsedEngineOutput(data, mediaUrl) {
             loadingState.style.display = 'none';
             document.getElementById('res-dest-title').innerText = data.destination;
 
+            // --- Render Location Media & NLP Greeting (Preventing Duplicates) ---
+            let existingMedia = document.getElementById('dynamic-media-container');
+            if(existingMedia) existingMedia.remove();
+
+            const mediaContainer = document.createElement('div');
+            mediaContainer.id = 'dynamic-media-container';
+            mediaContainer.innerHTML = `
+                <div style="width: 100%; height: 250px; border-radius: 20px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <img src="${mediaUrl || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1'}" alt="${data.destination}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div style="background: rgba(13, 148, 136, 0.1); padding: 20px; border-radius: 16px; margin-bottom: 30px; border-left: 4px solid var(--primary);">
+                    <h3 style="color: var(--primary-dark); margin-bottom: 10px; font-size: 18px;">🤖 AI Assistant Says:</h3>
+                    <p style="font-weight: 600; color: var(--text-dark); line-height: 1.5;">"${data.conversationalGreeting || 'Here is your personalized master itinerary!'}"</p>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        ${(data.smartSuggestions || []).map(suggestion => `<span style="background: white; padding: 5px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; color: var(--primary); border: 1px solid #cbd5e1;">✨ ${suggestion}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            const resultHeader = document.querySelector('.result-header-card');
+            resultHeader.parentNode.insertBefore(mediaContainer, resultHeader.nextSibling);
+
             // Compilation Component Layer 1: The Daily Segment Blocks
             let timelineHTML = "";
-            data.timeline.forEach(item => {
+            (data.timeline || []).forEach(item => {
                 timelineHTML += `
                     <div class="day-card">
                         <div class="day-title">Day ${item.day}: Operational Timeline Schedule</div>
@@ -419,7 +576,7 @@
 
                         <div class="tag-container">
                             <span class="ai-tag">📊 JSON Schema Validated</span>
-                            <span class="ai-tag">🔒 Thread Secure</span>
+                            <span class="ai-tag">🔒 Thread Secure (JWT)</span>
                         </div>
                     </div>
                 `;
@@ -439,9 +596,9 @@
             `;
 
             // Compilation Component Layer 3: Budget Metric Arrays Calculation
-            const lodgingTotal = data.budgetMetrics.lodging * data.days;
-            const foodTotal = data.budgetMetrics.food * data.days;
-            const transportTotal = data.budgetMetrics.transport;
+            const lodgingTotal = (data.budgetMetrics?.lodging || 0) * data.days;
+            const foodTotal = (data.budgetMetrics?.food || 0) * data.days;
+            const transportTotal = (data.budgetMetrics?.transport || 0);
             const totalThreshold = lodgingTotal + foodTotal + transportTotal;
 
             analyticsContainer.innerHTML = `
@@ -454,6 +611,7 @@
 
             // Set final structural state container block visible
             resultContainer.style.display = 'block';
+            document.getElementById('conversational-chat-box').style.display = 'block';
         }
     </script>
 </body>

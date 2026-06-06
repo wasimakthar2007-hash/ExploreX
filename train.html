@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Train Booking | ExploreX</title>
+    <link rel="manifest" href="./manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- Premium Cinematic CSS Variables --- */
+        :root {
+            --primary: #f97316; /* IRCTC/Railway Orange */
+            --primary-dark: #c2410c;
+            --primary-light: #fdba74;
+            --accent: #2563eb; /* Railway Blue */
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #334155;
+            
+            /* Enhanced Cinematic Glassmorphism */
+            --glass-header: rgba(15, 23, 42, 0.85);
+            --card-glass: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(255, 255, 255, 0.6);
+            --glow: rgba(249, 115, 22, 0.4);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Deep Cinematic Fixed Background */
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.9)), 
+                        url('https://images.unsplash.com/photo-1541123437800-1bb1317bc951?auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-dark); 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, .brand, .search-btn {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* --- Header (App Bar) --- */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; height: 85px;
+            background: var(--glass-header); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        /* Dedicated Back Button */
+        .back-btn { 
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2); 
+            color: white; padding: 12px 24px; border-radius: 14px; font-size: 16px; font-weight: 800;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(10px); font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateX(-4px); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+
+        .brand { font-size: 28px; font-weight: 900; color: white; letter-spacing: -0.5px; text-transform: uppercase;}
+        .brand span { color: var(--primary); text-shadow: 0 0 20px var(--glow); }
+
+        /* --- Side Panel (Drawer) --- */
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 999;
+        }
+        .drawer {
+            position: fixed; top: 0; left: -320px; width: 320px; height: 100%;
+            background: white; box-shadow: 5px 0 30px rgba(0,0,0,0.4);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 30px; z-index: 1000;
+        }
+        .drawer.open { left: 0; }
+        .drawer-overlay.show { opacity: 1; pointer-events: all; }
+        .drawer h2 { color: var(--text-dark); margin-bottom: 35px; margin-top: 10px; font-weight: 900; font-size: 26px; letter-spacing: -0.5px;}
+        .drawer a { padding: 18px 0; font-size: 18px; font-weight: 700; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.2s;}
+        .drawer a:hover { color: var(--primary); padding-left: 10px; background: #fff7ed; border-radius: 8px;}
+
+        /* --- Main Content --- */
+        main { padding: 130px 20px 80px; max-width: 900px; margin: 0 auto; }
+        
+        .hero { text-align: center; color: white; margin-bottom: 50px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .hero h1 { font-size: 48px; font-weight: 900; margin-bottom: 15px; letter-spacing: -1px; }
+        .hero p { font-size: 19px; color: #e2e8f0; font-weight: 500; max-width: 650px; margin: 0 auto; line-height: 1.6;}
+
+        /* --- Form Cards (Glassmorphism) --- */
+        .search-card, .passenger-card {
+            background: var(--card-glass); border-radius: 28px; padding: 45px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.3); margin-bottom: 40px;
+            position: relative; z-index: 10; border: 1px solid var(--card-border);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+        }
+        .passenger-card { display: none; animation: slideUp 0.5s ease; }
+        
+        .form-row { display: flex; gap: 25px; margin-bottom: 30px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 240px; position: relative;}
+        .form-group label { display: block; font-size: 15px; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        .api-input { 
+            width: 100%; padding: 22px 24px; border: 2px solid #cbd5e1; border-radius: 16px; 
+            font-size: 19px; font-weight: 700; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            color: var(--text-dark); background: white; box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .api-input:focus { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 15px 30px var(--glow); }
+        select.api-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 20px center; background-size: 18px; padding-right: 55px; }
+        
+        .search-btn { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark), #9a3412); 
+            background-size: 200% 200%; animation: gradientShift 4s ease infinite;
+            color: white; border: none; padding: 24px; 
+            width: 100%; border-radius: 16px; font-size: 22px; font-weight: 900; 
+            cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px;
+            box-shadow: 0 20px 40px var(--glow); display: flex; justify-content: center; align-items: center; gap: 12px;
+        }
+        .search-btn:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 25px 50px rgba(234, 88, 12, 0.6); }
+        .search-btn:active { transform: translateY(0) scale(0.98); }
+
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* --- Loading State --- */
+        .api-thinking { display: none; text-align: center; padding: 80px 0; background: var(--card-glass); border-radius: 28px; backdrop-filter: blur(25px); margin-top: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);}
+        .radar-spinner {
+            width: 90px; height: 90px; border-radius: 50%; border: 5px solid rgba(249, 115, 22, 0.15);
+            border-top-color: var(--primary); border-right-color: var(--primary-dark);
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin: 0 auto 30px;
+        }
+        .api-thinking p { color: var(--text-dark); font-weight: 900; font-size: 22px; animation: pulse 1.5s infinite; letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;}
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* --- API Results Section --- */
+        #results-container { display: none; margin-top: 50px; animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result-header-card {
+            background: var(--card-glass); padding: 35px; border-radius: 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(20px);
+        }
+        .result-title { font-size: 28px; font-weight: 900; color: var(--text-dark); margin: 0; letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;}
+        .api-badge { background: #fff7ed; color: var(--primary-dark); padding: 10px 20px; border-radius: 14px; font-weight: 900; font-size: 15px; border: 2px solid #fdba74; box-shadow: 0 5px 15px var(--glow);}
+
+        /* Premium Ticket Cards */
+        .ticket-list { display: flex; flex-direction: column; gap: 25px; }
+        .ticket-card {
+            background: var(--card-glass); border-radius: 24px; padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.9);
+            display: flex; flex-direction: column; gap: 18px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px); position: relative; overflow: hidden;
+        }
+        .ticket-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .ticket-card:hover { transform: translateY(-6px) scale(1.01); border-color: var(--primary-light); box-shadow: 0 30px 60px rgba(234, 88, 12, 0.15); }
+        
+        .ticket-top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px dashed #cbd5e1; padding-bottom: 20px;}
+        .operator-name { font-size: 26px; font-weight: 900; color: var(--text-dark); letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;}
+        .bus-type { font-size: 15px; color: var(--text-muted); font-weight: 700; margin-top: 6px;}
+        .price { font-size: 32px; font-weight: 900; color: var(--primary); letter-spacing: -1px; font-family: 'Outfit', sans-serif;}
+
+        .ticket-middle { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .time-block { display: flex; flex-direction: column; }
+        .time { font-size: 24px; font-weight: 900; color: var(--text-dark); font-family: 'Outfit', sans-serif;}
+        .location { font-size: 15px; color: var(--text-muted); font-weight: 800; margin-top: 4px; text-transform: uppercase;}
+        .duration { font-size: 14px; font-weight: 800; color: var(--text-muted); background: #f1f5f9; padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0;}
+
+        .ticket-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 10px;}
+        .availability { font-size: 16px; font-weight: 800; color: #16a34a; background: #f0fdf4; padding: 8px 16px; border-radius: 12px; border: 1px solid #bbf7d0;}
+        .availability.wl { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+        
+        .book-btn { background: var(--primary); color: white; border: none; padding: 14px 30px; border-radius: 12px; font-weight: 900; font-size: 17px; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 20px var(--glow); text-transform: uppercase; letter-spacing: 0.5px;}
+        .book-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
+
+        /* --- Final Generated E-Ticket (Realistic IRCTC Style) --- */
+        #final-ticket-container { display: none; animation: slideUp 0.6s ease; }
+        .e-ticket {
+            background: #ffffff; border-radius: 12px; padding: 40px; color: #000;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4); position: relative; border: 1px solid #e2e8f0;
+            max-width: 800px; margin: 0 auto;
+        }
+        .e-ticket-header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--accent); padding-bottom: 20px; margin-bottom: 20px;}
+        .e-ticket-header h2 { font-size: 24px; color: var(--accent); margin: 0; font-family: 'Arial', sans-serif; font-weight: bold;}
+        .e-ticket-header p { font-size: 12px; color: #64748b; margin-top: 5px;}
+        .qr-code { width: 80px; height: 80px; background: url('https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg') center/cover; }
+        
+        .pnr-box { display: flex; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;}
+        .pnr-item h4 { font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; font-family: 'Arial', sans-serif;}
+        .pnr-item p { font-size: 18px; font-weight: bold; color: #000; margin: 0;}
+
+        .train-route-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 0 10px;}
+        .train-route-box h3 { font-size: 20px; margin-bottom: 5px; color: #000;}
+        .train-route-box p { font-size: 14px; color: #64748b;}
+
+        .psgn-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: 'Arial', sans-serif;}
+        .psgn-table th, .psgn-table td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 14px;}
+        .psgn-table th { background: #f1f5f9; color: #0f172a; font-weight: bold; text-transform: uppercase; font-size: 12px;}
+        .psgn-table td { font-weight: 500; }
+        
+        .print-btn { background: #0f172a; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: block; margin: 0 auto; transition: 0.2s;}
+        .print-btn:hover { background: #334155; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <button class="back-btn" onclick="window.location.href='home.html'">
+                ← Back to Home
+            </button>
+            <button class="menu-btn" onclick="openDrawer()" style="margin-left: 10px;">☰</button>
+        </div>
+        <div class="brand">Explore<span>X</span> Rail</div>
+    </header>
+
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <h2>ExploreX Menu</h2>
+        <a href="home.html">🏠 Home</a>
+        <a href="profile.html">👤 My Profile</a>
+        <a href="bus.html">🚌 Book a Bus</a>
+        <a href="cab.html">🚕 Book a Cab</a>
+        <a href="train.html" style="color: var(--primary); font-weight: 800; background: #fff7ed; border-radius: 8px; padding-left: 10px;">🚆 Railway Tickets</a>
+        <a href="air.html">✈️ Flight Tickets</a>
+        <a href="aitour.html">🤖 AI Tour Planner</a>
+        <a href="#" id="logout-btn" style="color: #ef4444; margin-top: auto;">🚪 Logout</a>
+    </div>
+
+    <main>
+        <div class="hero" id="main-hero">
+            <h1>IRCTC Railway Booking</h1>
+            <p>Secure interface connecting directly to IRCTC architecture. Find confirmed tickets, Tatkal availability, and schedules instantly.</p>
+        </div>
+
+        <div class="search-card" id="form-container">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>From Station / City</label>
+                    <input type="text" id="train-from" class="api-input" placeholder="e.g. NDLS / New Delhi" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>To Station / City</label>
+                    <input type="text" id="train-to" class="api-input" placeholder="e.g. BCT / Kolkata" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Journey Date</label>
+                    <input type="date" id="train-date" class="api-input">
+                </div>
+                <div class="form-group">
+                    <label>Quota</label>
+                    <select id="train-quota" class="api-input">
+                        <option value="GENERAL">General Quota (GN)</option>
+                        <option value="TATKAL">Tatkal (TQ)</option>
+                        <option value="LADIES">Ladies (LD)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select id="train-class" class="api-input">
+                        <option value="ALL" selected>All Classes</option>
+                        <option value="1A">AC First Class (1A)</option>
+                        <option value="2A">AC 2 Tier (2A)</option>
+                        <option value="3A">AC 3 Tier (3A)</option>
+                        <option value="SL">Sleeper (SL)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="search-btn" id="search-btn">🚆 Search Trains</button>
+        </div>
+
+        <div class="passenger-card" id="passenger-form-container">
+            <h2 style="color: var(--text-dark); margin-bottom: 25px; font-size: 28px; font-family: 'Outfit', sans-serif;">Passenger Details</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px; font-weight: 600;">You are booking: <span id="psgn-train-name" style="color: var(--primary-dark);">Train Name</span></p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="psgn-name" class="api-input" placeholder="As per Govt. ID" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="psgn-age" class="api-input" min="1" max="120" placeholder="Years">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="psgn-gender" class="api-input">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Transgender">Transgender</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Berth Preference</label>
+                    <select id="psgn-berth" class="api-input">
+                        <option value="No Preference">No Preference</option>
+                        <option value="Lower">Lower</option>
+                        <option value="Middle">Middle</option>
+                        <option value="Upper">Upper</option>
+                        <option value="Side Lower">Side Lower</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="search-btn" id="pay-btn" style="background: linear-gradient(135deg, #16a34a, #15803d);">
+                🔒 Proceed to Payment
+            </button>
+            <button class="back-btn" id="cancel-psgn-btn" style="margin-top: 15px; justify-content: center; width: 100%; color: var(--text-dark); border-color: var(--text-muted);">
+                Cancel
+            </button>
+        </div>
+
+        <div class="api-thinking" id="loading-state">
+            <div class="radar-spinner"></div>
+            <p id="loading-text">Connecting to IRCTC Server Nodes...</p>
+        </div>
+
+        <div class="api-thinking" id="payment-loader">
+            <div class="radar-spinner" style="border-top-color: #16a34a; border-right-color: #15803d;"></div>
+            <p style="color: #16a34a;">Processing Secure Payment...</p>
+        </div>
+
+        <div id="results-container">
+            <div class="result-header-card">
+                <div>
+                    <h2 class="result-title"><span id="res-from">Origin</span> ➔ <span id="res-to">Destination</span></h2>
+                    <p style="color: var(--text-muted); font-weight: 700; margin-top: 8px; font-size: 16px;"><span id="res-date">Date</span> | Quota: <span id="res-quota" style="color:var(--primary-dark);">GN</span></p>
+                </div>
+                <div class="api-badge">IRCTC API Linked</div>
+            </div>
+            
+            <div class="ticket-list" id="ticket-container">
+                </div>
+        </div>
+
+        <div id="final-ticket-container">
+            <div class="e-ticket">
+                <div class="e-ticket-header">
+                    <div>
+                        <h2>Electronic Reservation Slip (ERS)</h2>
+                        <p>Indian Railway Catering & Tourism Corporation</p>
+                    </div>
+                    <div class="qr-code"></div>
+                </div>
+
+                <div class="pnr-box">
+                    <div class="pnr-item">
+                        <h4>PNR Number</h4>
+                        <p id="final-pnr">8472910384</p>
+                    </div>
+                    <div class="pnr-item">
+                        <h4>Transaction ID</h4>
+                        <p id="final-txn">100003928194</p>
+                    </div>
+                    <div class="pnr-item">
+                        <h4>Quota</h4>
+                        <p id="final-quota">GENERAL</p>
+                    </div>
+                    <div class="pnr-item">
+                        <h4>Distance</h4>
+                        <p>1450 KM</p>
+                    </div>
+                </div>
+
+                <div class="train-route-box">
+                    <div>
+                        <h3 id="final-train-name">RAJDHANI EXP (12302)</h3>
+                        <p>Class: <strong id="final-class">3A</strong></p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3 id="final-date">24-Oct-2023</h3>
+                        <p><span id="final-from">NDLS</span> ➔ <span id="final-to">HWH</span></p>
+                    </div>
+                </div>
+
+                <table class="psgn-table">
+                    <thead>
+                        <tr>
+                            <th>Passenger Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Booking Status</th>
+                            <th>Current Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="final-pname">Rahul Kumar</td>
+                            <td id="final-page">28</td>
+                            <td id="final-pgender">Male</td>
+                            <td id="final-pstatus1">CNF/B4/23/SU</td>
+                            <td id="final-pstatus2">CNF</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 30px;">
+                    <button class="print-btn" onclick="window.print()">🖨️ Print E-Ticket</button>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="home.html" style="color: var(--accent); font-weight: bold; text-decoration: underline;">Return to Home Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { auth } from './config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+        // Security check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'login.html';
+        });
+
+        // Logout logic for the drawer
+        document.getElementById('logout-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut(auth).then(() => { window.location.href = 'login.html'; });
+        });
+    </script>
+
+    <script>
+        // Drawer Controller
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('drawer-overlay');
+        function openDrawer() { drawer.classList.add('open'); overlay.classList.add('show'); }
+        function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('show'); }
+
+        // Set today's date as the minimum selectable date
+        const dateInput = document.getElementById('train-date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+        dateInput.value = today;
+
+        // Global state for booking
+        let selectedTrainData = null;
+        let globalFrom = "";
+        let globalTo = "";
+        let globalDate = "";
+
+        // --- DOM Elements ---
+        const searchBtn = document.getElementById('search-btn');
+        const formContainer = document.getElementById('form-container');
+        const loadingState = document.getElementById('loading-state');
+        const loadingText = document.getElementById('loading-text');
+        const resultContainer = document.getElementById('results-container');
+        const ticketContainer = document.getElementById('ticket-container');
+        const passengerForm = document.getElementById('passenger-form-container');
+        const paymentLoader = document.getElementById('payment-loader');
+        const finalTicketContainer = document.getElementById('final-ticket-container');
+        const mainHero = document.getElementById('main-hero');
+
+        // --- Step 1: Search Trains ---
+        searchBtn.addEventListener('click', () => {
+            globalFrom = document.getElementById('train-from').value.trim().toUpperCase();
+            globalTo = document.getElementById('train-to').value.trim().toUpperCase();
+            globalDate = document.getElementById('train-date').value;
+            const quota = document.getElementById('train-quota').value;
+            
+            if(!globalFrom || !globalTo) {
+                alert("Origin and Destination fields are strictly required.");
+                return;
+            }
+
+            formContainer.style.display = 'none';
+            loadingState.style.display = 'block';
+
+            setTimeout(() => { loadingText.innerText = "Querying live train schedules & PNR status..."; }, 1500);
+            setTimeout(() => { loadingText.innerText = "Parsing JSON availability payload..."; }, 3000);
+
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                
+                document.getElementById('res-from').innerText = globalFrom;
+                document.getElementById('res-to').innerText = globalTo;
+                document.getElementById('res-quota').innerText = quota;
+                
+                const d = new Date(globalDate);
+                document.getElementById('res-date').innerText = d.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                
+                // Simulated API Response
+                const apiResponsePayload = [
+                    {
+                        "id": "t1",
+                        "trainName": "VANDE BHARAT EXP",
+                        "trainNumber": "22436",
+                        "type": "CC (AC Chair Car)",
+                        "departureTime": "06:00",
+                        "arrivalTime": "14:00",
+                        "duration": "08h 00m",
+                        "price": 1540,
+                        "status": "AVAILABLE - 0124",
+                        "statusCode": "avl"
+                    },
+                    {
+                        "id": "t2",
+                        "trainName": "RAJDHANI EXP",
+                        "trainNumber": "12302",
+                        "type": "3A (AC 3 Tier)",
+                        "departureTime": "16:50",
+                        "arrivalTime": "09:55",
+                        "duration": "17h 05m",
+                        "price": 2780,
+                        "status": "AVAILABLE - 0045",
+                        "statusCode": "avl"
+                    },
+                    {
+                        "id": "t3",
+                        "trainName": "SAMPARK KRANTI",
+                        "trainNumber": "12218",
+                        "type": "SL (Sleeper)",
+                        "departureTime": "20:30",
+                        "arrivalTime": "16:45",
+                        "duration": "20h 15m",
+                        "price": 680,
+                        "status": "WL - 15 (Waitlist)",
+                        "statusCode": "wl"
+                    }
+                ];
+
+                // Render Payload
+                let ticketsHTML = "";
+                apiResponsePayload.forEach(ticket => {
+                    let statusClass = ticket.statusCode === 'avl' ? 'availability' : 'availability wl';
+                    let safeTicketObj = JSON.stringify(ticket).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    
+                    ticketsHTML += `
+                        <div class="ticket-card">
+                            <div class="ticket-top">
+                                <div>
+                                    <div class="operator-name">${ticket.trainName} <span style="font-size: 16px; color: var(--text-muted);">(${ticket.trainNumber})</span></div>
+                                    <div class="bus-type">Class: ${ticket.type}</div>
+                                </div>
+                                <div class="price">₹${ticket.price}</div>
+                            </div>
+                            
+                            <div class="ticket-middle">
+                                <div class="time-block">
+                                    <div class="time">${ticket.departureTime}</div>
+                                    <div class="location">${globalFrom}</div>
+                                </div>
+                                
+                                <div class="duration">---- ${ticket.duration} ----</div>
+                                
+                                <div class="time-block" style="text-align: right;">
+                                    <div class="time">${ticket.arrivalTime}</div>
+                                    <div class="location">${globalTo}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ticket-bottom">
+                                <div class="${statusClass}">${ticket.status}</div>
+                                <button class="book-btn" onclick="openPassengerForm('${safeTicketObj}')">Book Now</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                ticketContainer.innerHTML = ticketsHTML;
+                resultContainer.style.display = 'block';
+
+            }, 4000);
+        });
+
+        // --- Step 2: Open Passenger Form ---
+        window.openPassengerForm = function(ticketDataStr) {
+            selectedTrainData = JSON.parse(ticketDataStr);
+            
+            // Hide results, show form
+            resultContainer.style.display = 'none';
+            mainHero.style.display = 'none';
+            passengerForm.style.display = 'block';
+
+            document.getElementById('psgn-train-name').innerText = `${selectedTrainData.trainName} (${selectedTrainData.trainNumber})`;
+        };
+
+        document.getElementById('cancel-psgn-btn').addEventListener('click', () => {
+            passengerForm.style.display = 'none';
+            resultContainer.style.display = 'block';
+            mainHero.style.display = 'block';
+        });
+
+        // --- Step 3: Process Payment & Generate Ticket ---
+        document.getElementById('pay-btn').addEventListener('click', () => {
+            const pname = document.getElementById('psgn-name').value.trim();
+            const page = document.getElementById('psgn-age').value.trim();
+            const pgender = document.getElementById('psgn-gender').value;
+
+            if(!pname || !page) {
+                alert("Passenger Name and Age are required.");
+                return;
+            }
+
+            // Hide form, show payment loader
+            passengerForm.style.display = 'none';
+            paymentLoader.style.display = 'block';
+
+            // Simulate IRCTC Payment
+            setTimeout(() => {
+                paymentLoader.style.display = 'none';
+                generateFinalTicket(pname, page, pgender);
+            }, 3000);
+        });
+
+        function generateFinalTicket(name, age, gender) {
+            // Generate Random PNR
+            const randomPNR = Math.floor(Math.random() * 9000000000) + 1000000000;
+            const randomTxn = "TXN" + Math.floor(Math.random() * 900000000) + 100000000;
+
+            document.getElementById('final-pnr').innerText = randomPNR;
+            document.getElementById('final-txn').innerText = randomTxn;
+            document.getElementById('final-quota').innerText = document.getElementById('train-quota').value;
+            
+            document.getElementById('final-train-name').innerText = `${selectedTrainData.trainName} (${selectedTrainData.trainNumber})`;
+            document.getElementById('final-class').innerText = selectedTrainData.type;
+            document.getElementById('final-from').innerText = globalFrom;
+            document.getElementById('final-to').innerText = globalTo;
+
+            const d = new Date(globalDate);
+            document.getElementById('final-date').innerText = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+            // Passenger Table logic
+            document.getElementById('final-pname').innerText = name.toUpperCase();
+            document.getElementById('final-page').innerText = age;
+            document.getElementById('final-pgender').innerText = gender;
+
+            // Realistic Booking Status Logic based on Train status
+            let bkgStatus = "";
+            let crntStatus = "";
+
+            if (selectedTrainData.statusCode === 'avl') {
+                const randomCoach = ["B1", "B2", "B3", "A1", "C1", "C2"][Math.floor(Math.random()*6)];
+                const randomSeat = Math.floor(Math.random() * 60) + 1;
+                bkgStatus = `CNF/${randomCoach}/${randomSeat}/UB`;
+                crntStatus = "CNF";
+            } else {
+                // If it was waitlist
+                bkgStatus = "GNWL 15/WL 15";
+                crntStatus = "GNWL 15/WL 14"; // Moved up by 1 realistically
+            }
+
+            document.getElementById('final-pstatus1').innerText = bkgStatus;
+            document.getElementById('final-pstatus2').innerText = crntStatus;
+            
+            if(crntStatus === "CNF") {
+                document.getElementById('final-pstatus2').style.color = "#16a34a";
+                document.getElementById('final-pstatus2').style.fontWeight = "900";
+            } else {
+                document.getElementById('final-pstatus2').style.color = "#dc2626";
+            }
+
+            // Show ticket
+            finalTicketContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+// --- 4. MULTI-TURN CHAT HANDLER ---
+        document.getElementById('chat-submit-btn').addEventListener('click', async () => {
+            const followUpInput = document.getElementById('chat-followup-input');
+            const userMessage = followUpInput.value.trim();
+            if(!userMessage) return;
+
+            // 1. Context Awareness: Capture user prompt update
+            userConversationMemory.push(`User adjustment: ${userMessage}`);
+            
+            // Append message to visual log view
+            appendChatMessage("You", userMessage);
+            followUpInput.value = ""; // clear input
+
+            // Reuse existing loading elements to show processing state
+            loadingState.style.display = 'block';
+            loadingText.innerText = "Processing intent parameters...";
+            resultContainer.style.display = 'none'; // hide old itinerary while loading
+
+            try {
+                const jwtToken = localStorage.getItem('explorex_jwt') || "DUMMY_TOKEN_FOR_TESTING";
+                
+                // Re-read initial values to maintain core domain data integrity
+                const dest = document.getElementById('ai-destination').value.trim();
+                const days = parseInt(document.getElementById('ai-days').value);
+                const vibe = document.getElementById('ai-vibe').value;
+                const budget = document.getElementById('ai-budget').value;
+
+                const response = await fetch('http://localhost:3000/api/generate-tour', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({
+                        destination: dest,
+                        days: days,
+                        budget: budget,
+                        vibe: vibe,
+                        conversationHistory: userConversationMemory // Array with full history layer context
+                    })
+                });
+
+                if (!response.ok) throw new Error("Conversation update failed");
+                const serverResponse = await response.json();
+
+                // Save AI response to conversational context history
+                userConversationMemory.push(`AI Response: ${serverResponse.data.conversationalGreeting}`);
+
+                // Update the timeline dynamically and show message confirmation
+                renderParsedEngineOutput(serverResponse.data, serverResponse.media_reel);
+                appendChatMessage("AI Assistant", serverResponse.data.conversationalGreeting);
+
+            } catch (error) {
+                console.error("Multi-turn context fault:", error);
+                alert("Could not process update request.");
+                loadingState.style.display = 'none';
+            }
+        });
+
+        // Helper utility to keep track of conversations natively inside the view window
+        function appendChatMessage(sender, text) {
+            const log = document.getElementById('chat-thread-log');
+            const msgElement = document.createElement('div');
+            const isAi = sender === "AI Assistant";
+            
+            msgElement.style.padding = "12px 16px";
+            msgElement.style.borderRadius = "12px";
+            msgElement.style.maxWidth = "80%";
+            msgElement.style.fontSize = "14px";
+            msgElement.style.fontWeight = "600";
+            
+            if(isAi) {
+                msgElement.style.background = "#e0f2fe";
+                msgElement.style.color = "#0369a1";
+                msgElement.style.alignSelf = "flex-start";
+            } else {
+                msgElement.style.background = "#0f172a";
+                msgElement.style.color = "#ffffff";
+                msgElement.style.alignSelf = "flex-end";
+            }
+            
+            msgElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            log.appendChild(msgElement);
+            log.scrollTop = log.scrollHeight; // Auto-scroll window view frame
+        }
+
+        // --- 5. DATA COMPILER PARSING PROTOCOL ---
+        function renderParsedEngineOutput(data, mediaUrl) {
+            loadingState.style.display = 'none';
+            document.getElementById('res-dest-title').innerText = data.destination;
+
+            // --- Render Location Media & NLP Greeting (Preventing Duplicates) ---
+            let existingMedia = document.getElementById('dynamic-media-container');
+            if(existingMedia) existingMedia.remove();
+
+            const mediaContainer = document.createElement('div');
+            mediaContainer.id = 'dynamic-media-container';
+            mediaContainer.innerHTML = `
+                <div style="width: 100%; height: 250px; border-radius: 20px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <img src="${mediaUrl || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1'}" alt="${data.destination}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div style="background: rgba(13, 148, 136, 0.1); padding: 20px; border-radius: 16px; margin-bottom: 30px; border-left: 4px solid var(--primary);">
+                    <h3 style="color: var(--primary-dark); margin-bottom: 10px; font-size: 18px;">🤖 AI Assistant Says:</h3>
+                    <p style="font-weight: 600; color: var(--text-dark); line-height: 1.5;">"${data.conversationalGreeting || 'Here is your personalized master itinerary!'}"</p>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        ${(data.smartSuggestions || []).map(suggestion => `<span style="background: white; padding: 5px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; color: var(--primary); border: 1px solid #cbd5e1;">✨ ${suggestion}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            const resultHeader = document.querySelector('.result-header-card');
+            resultHeader.parentNode.insertBefore(mediaContainer, resultHeader.nextSibling);
+
+            // Compilation Component Layer 1: The Daily Segment Blocks
+            let timelineHTML = "";
+            (data.timeline || []).forEach(item => {
+                timelineHTML += `
+                    <div class="day-card">
+                        <div class="day-title">Day ${item.day}: Operational Timeline Schedule</div>
+                        
+                        <div class="time-segment">
+                            <div class="time-segment-meta">09:00 - Morning Phase</div>
+                            <div class="time-segment-body">${item.morning}</div>
+                        </div>
+                        
+                        <div class="time-segment">
+                            <div class="time-segment-meta">14:00 - Afternoon Phase</div>
+                            <div class="time-segment-body">${item.afternoon}</div>
+                        </div>
+
+                        <div class="time-segment">
+                            <div class="time-segment-meta">19:00 - Evening Phase</div>
+                            <div class="time-segment-body">${item.evening}</div>
+                        </div>
+
+                        <div class="tag-container">
+                            <span class="ai-tag">📊 JSON Schema Validated</span>
+                            <span class="ai-tag">🔒 Thread Secure (JWT)</span>
+                        </div>
+                    </div>
+                `;
+            });
+            timelineContainer.innerHTML = timelineHTML;
+
+            // Compilation Component Layer 2: Infrastructure Registry Caching
+            directoryContainer.innerHTML = `
+                <div class="directory-card">
+                    <div class="directory-title">🏨 Premium Logistical Basecamp</div>
+                    <div class="directory-desc">System matched asset optimized for automated check-in tracking your strict parameters.</div>
+                </div>
+                <div class="directory-card">
+                    <div class="directory-title">🛍️ Local Trade Matrix Point</div>
+                    <div class="directory-desc">Verified transactional center optimized for artisan exploration parameters.</div>
+                </div>
+            `;
+
+            // Compilation Component Layer 3: Budget Metric Arrays Calculation
+            const lodgingTotal = (data.budgetMetrics?.lodging || 0) * data.days;
+            const foodTotal = (data.budgetMetrics?.food || 0) * data.days;
+            const transportTotal = (data.budgetMetrics?.transport || 0);
+            const totalThreshold = lodgingTotal + foodTotal + transportTotal;
+
+            analyticsContainer.innerHTML = `
+                <div class="analytics-row"><span>Lodging Parameter Footprint Total</span><span class="analytics-val">₹${lodgingTotal}</span></div>
+                <div class="analytics-row"><span>Logistics Allocation Footprint Total</span><span class="analytics-val">₹${transportTotal}</span></div>
+                <div class="analytics-row"><span>Gastronomy Consumption Matrix Total</span><span class="analytics-val">₹${foodTotal}</span></div>
+                <hr style="border:0; border-top:1px solid #cbd5e1; margin:15px 0;">
+                <div class="analytics-row" style="font-size:22px; color:var(--primary-dark); font-weight:900;"><span>Total Journey Parameter Accumulation Matrix</span><span>₹${totalThreshold}</span></div>
+            `;
+
+            // Set final structural state container block visible
+            resultContainer.style.display = 'block';
+            
+            // 👇 Here is the joined code! It un-hides the chat box right after the itinerary loads.
+            document.getElementById('conversational-chat-box').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
