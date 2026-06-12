@@ -4,9 +4,13 @@
   "description": "",
   "main": "config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install-all": "npm install --workspaces",
+    "dev-backend": "npm --workspace backend run dev",
+    "dev-frontend": "npm --workspace frontend run dev"
   },
   "keywords": [],
+  "workspaces": ["backend", "frontend"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

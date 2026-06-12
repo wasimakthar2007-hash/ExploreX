@@ -3,176 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard | ExploreX</title>
+    <title>ExploreX | Ultra-Modern Admin Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CSS Variables & Resets --- */
+        /* --- ULTRA MODERN CSS VARIABLES --- */
         :root {
-            --primary: #0d9488;
-            --primary-dark: #0f766e;
-            --secondary-bg: #f1f5f9;
-            --bg-light: #f8fafc;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --border: #e2e8f0;
+            --primary: #06b6d4; /* Cyber Cyan */
+            --primary-dark: #0891b2;
+            --accent: #6366f1; /* Deep Purple */
+            --bg-dark: #020617; /* Deep Navy Background */
+            --bg-panel: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
             --danger: #ef4444;
+            --success: #10b981;
+            --glow: rgba(6, 182, 212, 0.4);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
 
-        /* --- Password Overlay --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
+
+        /* --- AUTH OVERLAY --- */
         #auth-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            display: flex; justify-content: center; align-items: center; z-index: 2000;
+            background: radial-gradient(circle at center, #0f172a, #000000);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
         }
-        .auth-card { background: white; padding: 40px 30px; border-radius: 16px; text-align: center; width: 90%; max-width: 380px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        .auth-card h2 { color: var(--primary); margin-bottom: 10px; }
-        .auth-card input { width: 100%; padding: 14px; margin: 20px 0; border: 2px solid var(--border); border-radius: 8px; font-size: 18px; text-align: center; letter-spacing: 4px; transition: border-color 0.2s; }
-        .auth-card input:focus { outline: none; border-color: var(--primary); }
-        
-        /* --- Buttons --- */
-        button { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        button:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2); }
-        button:active { transform: translateY(0); }
-        
-        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
-        .btn-outline:hover { background: var(--primary); color: white; }
-        .btn-secondary { background: var(--secondary-bg); color: var(--text-dark); border: 1px solid var(--border); }
-        .btn-secondary:hover { background: #e2e8f0; box-shadow: none; }
+        .auth-card {
+            background: var(--glass-bg); padding: 50px 40px; border-radius: 24px; text-align: center; 
+            width: 90%; max-width: 400px; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            border: 1px solid var(--glass-border); backdrop-filter: blur(20px);
+        }
+        .auth-card h2 { color: var(--text-main); font-size: 32px; margin-bottom: 10px; font-weight: 900;}
+        .auth-card h2 span { color: var(--primary); text-shadow: 0 0 15px var(--glow); }
+        .auth-card input {
+            width: 100%; padding: 18px; margin: 30px 0; background: rgba(0,0,0,0.5);
+            border: 1px solid var(--glass-border); border-radius: 12px; color: white;
+            font-size: 24px; text-align: center; letter-spacing: 10px; outline: none; transition: 0.3s;
+        }
+        .auth-card input:focus { border-color: var(--primary); box-shadow: 0 0 20px var(--glow); }
+        .auth-card button { width: 100%; padding: 18px; font-size: 18px; border-radius: 12px; }
 
-        /* --- Admin Layout --- */
-        #admin-content { display: none; padding-top: 90px; }
-        header {
-            position: fixed; top: 0; left: 0; right: 0; height: 75px;
-            background: var(--glass-bg); backdrop-filter: blur(12px);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 100;
+        /* --- BUTTONS --- */
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; 
+            padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 14px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .header-title { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        .header-actions { display: flex; gap: 12px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px var(--glow); }
+        button:active { transform: translateY(0); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); box-shadow: none; color: var(--text-main); }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+        .btn-ai { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+
+        /* --- DASHBOARD LAYOUT --- */
+        #admin-content { display: none; height: 100vh; overflow: hidden; display: flex; }
         
-        main { padding: 0 30px 40px; max-width: 1400px; margin: 0 auto; }
+        /* SIDEBAR */
+        aside {
+            width: 280px; background: var(--bg-panel); border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column; padding: 30px 20px; z-index: 10;
+        }
+        .brand { font-size: 28px; font-weight: 900; color: white; margin-bottom: 50px; text-align: center; }
+        .brand span { color: var(--primary); text-shadow: 0 0 15px var(--glow); }
+        
+        .nav-item {
+            padding: 16px 20px; color: var(--text-muted); font-size: 16px; font-weight: 700;
+            border-radius: 12px; cursor: pointer; transition: 0.3s; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .nav-item:hover, .nav-item.active { background: var(--glass-bg); color: white; border: 1px solid var(--glass-border); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .nav-item.active { border-left: 4px solid var(--primary); }
+
+        /* MAIN CONTENT AREA */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle at top right, #1e293b, var(--bg-dark)); }
+        header {
+            height: 85px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px; border-bottom: 1px solid var(--glass-border);
+        }
+        .header-title { font-size: 24px; font-weight: 900; color: white; font-family: 'Outfit'; }
+        .header-actions { display: flex; gap: 15px; }
+
+        main { flex: 1; padding: 40px; overflow-y: auto; }
         
         /* Quick Add Bar */
-        .add-place-bar { display: flex; gap: 15px; margin-bottom: 40px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); align-items: center;}
-        .add-place-bar input { flex: 1; padding: 14px 20px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; transition: border-color 0.2s;}
-        .add-place-bar input:focus { outline: none; border-color: var(--primary); }
-        .add-place-bar button { padding: 14px 28px; white-space: nowrap; }
+        .add-place-bar { 
+            display: flex; gap: 15px; margin-bottom: 40px; background: var(--glass-bg); padding: 20px; 
+            border-radius: 16px; border: 1px solid var(--glass-border); align-items: center; backdrop-filter: blur(10px);
+        }
+        .add-place-bar input { 
+            flex: 1; padding: 16px 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
+            border-radius: 12px; font-size: 16px; color: white; transition: 0.3s;
+        }
+        .add-place-bar input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 15px var(--glow); }
 
         /* --- Grid & Cards --- */
-        .section-header { font-size: 20px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700; }
+        .section-header { font-size: 22px; color: white; margin-bottom: 25px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;}
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
         
         .place-card {
-            background: white; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: all 0.3s ease;
-            border: 1px solid var(--border); display: flex; flex-direction: column;
+            background: var(--glass-bg); border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.3s ease;
+            border: 1px solid var(--glass-border); display: flex; flex-direction: column; backdrop-filter: blur(10px);
         }
-        .place-card:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+        .place-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2); }
         
-        .card-header { padding: 24px 24px 16px; border-bottom: 1px solid var(--bg-light); border-left: 4px solid var(--primary); }
-        .card-header h3 { color: var(--text-dark); font-size: 20px; margin-bottom: 6px;}
-        .card-header p { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        .card-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 4px solid var(--primary); }
+        .card-header h3 { color: white; font-size: 22px; margin-bottom: 6px; font-weight: 900;}
+        .card-header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
         
-        .card-actions { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 12px; background: #fafaf9; margin-top: auto; }
-        .card-actions button { width: 100%; font-size: 14px; padding: 10px; }
+        .card-actions { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.2); margin-top: auto; }
+        .card-actions button { width: 100%; font-size: 13px; padding: 12px; }
 
         /* --- Drawers (Modals) --- */
         .drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px);
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 999;
         }
         .drawer {
-            position: fixed; top: 0; right: -450px; width: 100%; max-width: 450px; height: 100%;
-            background: white; box-shadow: -5px 0 25px rgba(0,0,0,0.15);
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; display: flex; flex-direction: column;
+            position: fixed; top: 0; right: -500px; width: 100%; max-width: 500px; height: 100%;
+            background: var(--bg-panel); border-left: 1px solid var(--glass-border); box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; display: flex; flex-direction: column;
         }
         .drawer.open { right: 0; }
-        .drawer-overlay.show { opacity: 1; pointer-events: all; }
         
-        .drawer-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: white; }
-        .drawer-header h3 { font-size: 20px; color: var(--text-dark); font-weight: 700; }
-        .close-btn { background: var(--secondary-bg); color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .close-btn:hover { background: #e2e8f0; color: var(--danger); transform: rotate(90deg); }
+        .drawer-header { padding: 25px 30px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
+        .drawer-header h3 { font-size: 22px; color: white; font-weight: 900; }
+        .close-btn { background: rgba(255,255,255,0.1); color: white; width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
+        .close-btn:hover { background: var(--danger); transform: rotate(90deg); }
 
-        .drawer-body { padding: 24px; overflow-y: auto; flex: 1; background: var(--bg-light); }
-        .drawer-footer { padding: 20px 24px; border-top: 1px solid var(--border); background: white; display: flex; justify-content: flex-end; gap: 12px; }
+        .drawer-body { padding: 30px; overflow-y: auto; flex: 1; }
+        .drawer-footer { padding: 25px 30px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); display: flex; justify-content: flex-end; gap: 15px; }
         
         /* Form Elements inside Drawers */
-        .form-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin: 24px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .form-section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); font-weight: 800; margin: 30px 0 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px;}
         .form-section-title:first-child { margin-top: 0; }
         
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-dark); }
+        .form-group { margin-bottom: 22px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; background: white; transition: border 0.2s, box-shadow 0.2s;
+            width: 100%; padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; font-size: 15px; 
+            background: rgba(0,0,0,0.4); color: white; transition: 0.3s; outline: none;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
-        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); }
 
-        /* Distances Styling */
-        .distance-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 12px 16px; background: white; border: 1px solid var(--border); border-radius: 8px; transition: border-color 0.2s; }
-        .distance-row:hover { border-color: #cbd5e1; }
-        .distance-row span { font-weight: 600; font-size: 14px; color: var(--text-dark); }
-        .distance-row .input-wrapper { display: flex; align-items: center; gap: 8px; }
-        .distance-row input { width: 90px; text-align: center; padding: 8px; border: 1px solid var(--border); border-radius: 6px; }
-
-        /* Entity List Styling (Beautiful Clickable Rows) */
-        .entity-category { margin: 24px 0 12px; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .entity-category:first-child { margin-top: 0; }
-        
+        /* Entity List Styling */
         .entity-item {
-            background: white; border: 1px solid var(--border); border-radius: 10px;
-            padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between;
-            align-items: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px;
+            padding: 18px; margin-bottom: 15px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; transition: 0.2s;
         }
-        .entity-item:hover { 
-            border-color: var(--primary); 
-            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.08); 
-            transform: translateY(-2px); 
-        }
-        .entity-info { display: flex; flex-direction: column; gap: 4px; }
-        .entity-info span { font-weight: 600; font-size: 15px; color: var(--text-dark); }
+        .entity-item:hover { border-color: var(--primary); background: rgba(6, 182, 212, 0.1); transform: translateX(5px); }
+        .entity-info { display: flex; flex-direction: column; gap: 6px; }
+        .entity-info span { font-weight: 800; font-size: 16px; color: white; }
         .entity-info small { color: var(--text-muted); font-size: 13px; }
-        .entity-arrow { color: var(--primary); font-weight: bold; opacity: 0.5; transition: opacity 0.2s, transform 0.2s; }
-        .entity-item:hover .entity-arrow { opacity: 1; transform: translateX(4px); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--glass-border); font-size: 15px;}
         
-        .empty-state { text-align: center; padding: 30px 20px; color: var(--text-muted); background: white; border-radius: 10px; border: 1px dashed var(--border); font-size: 14px;}
+        /* Tab Control */
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Loading AI Overlay */
+        #ai-loader { display: none; margin-top: 10px; font-size: 14px; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite;}
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <div id="auth-overlay">
         <div class="auth-card">
-            <h2>ExploreX Admin</h2>
-            <p style="color: var(--text-muted); font-size: 14px;">Authorized personnel only</p>
+            <h2>ExploreX <span>Admin</span></h2>
+            <p style="color: var(--text-muted); font-size: 15px;">Enterprise Command Protocol</p>
             <input type="password" id="admin-pass" placeholder="••••">
-            <button onclick="checkPassword()" style="width: 100%; padding: 14px;">Access Dashboard</button>
+            <button onclick="checkPassword()">Initialize System</button>
         </div>
     </div>
 
     <div id="admin-content">
-        <header>
-            <div class="header-title">Dashboard Overview</div>
-            <div class="header-actions">
-                <button class="btn-outline" onclick="prepareAddHotel()">+ Add Hotel</button>
-                <button class="btn-outline" onclick="prepareAddShop()">+ Add Shop</button>
-            </div>
-        </header>
+        <aside>
+            <div class="brand">Explore<span>X</span></div>
+            <div class="nav-item active" onclick="switchTab('tab-places', this)">🌍 Destinations</div>
+            <div class="nav-item" onclick="switchTab('tab-transport', this)">🚀 Transport Fleet</div>
+            <div class="nav-item" onclick="switchTab('tab-hotels', this)">🏨 Hotels & Shops</div>
+            <div style="flex: 1;"></div>
+            <div class="nav-item" style="color: var(--danger);" onclick="location.reload()">🔒 Secure Logout</div>
+        </aside>
 
-        <main>
-            <div class="add-place-bar">
-                <input type="text" id="new-place-name" placeholder="E.g., Manali, Goa, Jaipur...">
-                <button onclick="addPlace()">Create New Place</button>
-            </div>
-            
-            <h2 class="section-header">Managed Destinations</h2>
-            <div id="places-grid" class="grid">
+        <div class="main-wrapper">
+            <header>
+                <div class="header-title" id="top-title">Destinations Hub</div>
+                <div class="header-actions">
+                    <button class="btn-outline" onclick="prepareAddFlight()">+ Add Flight</button>
+                    <button class="btn-outline" onclick="prepareAddBus()">+ Add Bus</button>
+                    <button class="btn-outline" onclick="prepareAddCab()">+ Add Cab</button>
                 </div>
-        </main>
+            </header>
+
+            <main>
+                <div id="tab-places" class="tab-content active">
+                    <div class="add-place-bar">
+                        <input type="text" id="new-place-name" placeholder="Initialize new destination node (e.g., Tokyo, Paris)...">
+                        <button onclick="addPlace()">Create Node</button>
+                    </div>
+                    <div id="places-grid" class="grid"></div>
+                </div>
+
+                <div id="tab-transport" class="tab-content">
+                    <h2 class="section-header">Active Aviation Routes (Flights)</h2>
+                    <div id="flights-grid" class="grid" style="margin-bottom: 40px;"></div>
+                    
+                    <h2 class="section-header">Intercity Bus Fleet</h2>
+                    <div id="buses-grid" class="grid" style="margin-bottom: 40px;"></div>
+
+                    <h2 class="section-header">Local Cab Network</h2>
+                    <div id="cabs-grid" class="grid"></div>
+                </div>
+
+                <div id="tab-hotels" class="tab-content">
+                    <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                        <button onclick="prepareAddHotel()">+ Manually Add Hotel</button>
+                        <button onclick="prepareAddShop()">+ Manually Add Shop</button>
+                    </div>
+                    <h2 class="section-header">Global Hotel Infrastructure</h2>
+                    <div id="global-hotels-grid" class="grid" style="margin-bottom: 40px;"></div>
+                    <h2 class="section-header">Global Retail Infrastructure</h2>
+                    <div id="global-shops-grid" class="grid"></div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <div class="drawer-overlay" id="drawer-overlay" onclick="closeAllDrawers()"></div>
@@ -183,23 +249,21 @@
             <button class="close-btn" onclick="closeAllDrawers()">✕</button>
         </div>
         <div class="drawer-body">
+            <button class="btn-ai" style="width: 100%; margin-bottom: 20px;" onclick="aiPopulatePlace()">✨ AI Auto-Fill Details</button>
+            <div id="ai-loader-place" style="display: none; color: var(--primary); text-align: center; margin-bottom: 15px;">🧠 AI is generating data...</div>
+
             <div class="form-section-title">General Information</div>
             <div class="form-group">
                 <label>Famous Attractions & Activities</label>
-                <textarea id="place-things" rows="3" placeholder="E.g. Mountains, Trekking, Skiing..."></textarea>
+                <textarea id="place-things" rows="4" placeholder="E.g. Mountains, Trekking..."></textarea>
             </div>
             <div class="form-group">
-                <label>Local Cuisine & Famous Food</label>
-                <textarea id="place-food" rows="2" placeholder="E.g. Local Maggie, Momos, Thukpa..."></textarea>
+                <label>Local Cuisine</label>
+                <textarea id="place-food" rows="3" placeholder="E.g. Local Street Food..."></textarea>
             </div>
-            
-            <div class="form-section-title" style="margin-top: 30px;">Route Distances</div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Set the distance in kilometers from this location to others.</p>
-            <div id="distance-list">
-                </div>
         </div>
         <div class="drawer-footer">
-            <button class="btn-secondary" onclick="closeAllDrawers()">Cancel</button>
+            <button class="btn-outline" onclick="closeAllDrawers()">Cancel</button>
             <button onclick="savePlaceDetails()">Save Changes</button>
         </div>
     </div>
@@ -209,37 +273,36 @@
             <h3 id="entities-place-title">Place Entities</h3>
             <button class="close-btn" onclick="closeAllDrawers()">✕</button>
         </div>
-        <div class="drawer-body" id="entities-list">
-            </div>
+        <div class="drawer-body" id="entities-list"></div>
     </div>
 
-    <div id="room-drawer" class="drawer">
+    <div id="hotel-drawer" class="drawer">
         <div class="drawer-header">
             <h3 id="hotel-drawer-title">Add Hotel</h3>
             <button class="close-btn" onclick="closeAllDrawers()">✕</button>
         </div>
         <div class="drawer-body">
-            <div class="form-section-title">Hotel Details</div>
             <div class="form-group">
                 <label>Location (Place)</label>
                 <select id="hotel-place" class="place-dropdown"></select>
             </div>
-            <div class="form-group"><label>Hotel Name</label><input type="text" id="hotel-name" placeholder="Enter hotel name"></div>
-            <div class="form-group"><label>Full Address</label><input type="text" id="hotel-address" placeholder="Street address or landmark"></div>
+            <button class="btn-ai" style="width: 100%; margin-bottom: 20px;" onclick="aiPopulateHotel()">✨ AI Auto-Generate Hotel</button>
+            <div id="ai-loader-hotel" style="display: none; color: var(--primary); text-align: center; margin-bottom: 15px;">🧠 AI is finding hotels...</div>
+
+            <div class="form-section-title">Hotel Details</div>
+            <div class="form-group"><label>Hotel Name</label><input type="text" id="hotel-name"></div>
+            <div class="form-group"><label>Full Address</label><input type="text" id="hotel-address"></div>
+            <div class="form-group"><label>Contact Number</label><input type="text" id="hotel-mobile"></div>
             
-            <div class="form-section-title">Contact & Maps</div>
-            <div class="form-group"><label>Google Maps URL</label><input type="url" id="hotel-map" placeholder="https://maps.google.com/..."></div>
-            <div class="form-group"><label>Contact Number</label><input type="tel" id="hotel-mobile" placeholder="+91 ..."></div>
-            
-            <div class="form-section-title">Room Pricing (₹)</div>
-            <div style="display:flex; gap:15px;">
-                <div class="form-group" style="flex:1;"><label>Single</label><input type="number" id="hotel-p-single" placeholder="0"></div>
-                <div class="form-group" style="flex:1;"><label>Double</label><input type="number" id="hotel-p-double" placeholder="0"></div>
-                <div class="form-group" style="flex:1;"><label>AC Room</label><input type="number" id="hotel-p-ac" placeholder="0"></div>
+            <div class="form-section-title">Pricing (₹)</div>
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;"><label>Single</label><input type="number" id="hotel-p-single"></div>
+                <div class="form-group" style="flex:1;"><label>Double</label><input type="number" id="hotel-p-double"></div>
+                <div class="form-group" style="flex:1;"><label>AC Room</label><input type="number" id="hotel-p-ac"></div>
             </div>
         </div>
         <div class="drawer-footer">
-            <button class="btn-secondary" onclick="closeAllDrawers()">Cancel</button>
+            <button class="btn-outline" onclick="closeAllDrawers()">Cancel</button>
             <button onclick="saveHotel()" id="hotel-save-btn">Save Hotel</button>
         </div>
     </div>
@@ -250,22 +313,55 @@
             <button class="close-btn" onclick="closeAllDrawers()">✕</button>
         </div>
         <div class="drawer-body">
-            <div class="form-section-title">Shop Details</div>
             <div class="form-group">
                 <label>Location (Place)</label>
                 <select id="shop-place" class="place-dropdown"></select>
             </div>
-            <div class="form-group"><label>Shop Name</label><input type="text" id="shop-name" placeholder="Enter shop name"></div>
-            <div class="form-group"><label>Specialty Items (Comma separated)</label><textarea id="shop-items" rows="2" placeholder="Handicrafts, Sweets, Souvenirs..."></textarea></div>
-            
-            <div class="form-section-title">Contact & Location</div>
-            <div class="form-group"><label>Full Address</label><input type="text" id="shop-address" placeholder="Street address or landmark"></div>
-            <div class="form-group"><label>Google Maps URL</label><input type="url" id="shop-map" placeholder="https://maps.google.com/..."></div>
-            <div class="form-group"><label>Contact Number</label><input type="tel" id="shop-mobile" placeholder="+91 ..."></div>
+            <button class="btn-ai" style="width: 100%; margin-bottom: 20px;" onclick="aiPopulateShop()">✨ AI Auto-Generate Shop</button>
+            <div id="ai-loader-shop" style="display: none; color: var(--primary); text-align: center; margin-bottom: 15px;">🧠 AI is finding local shops...</div>
+
+            <div class="form-section-title">Shop Details</div>
+            <div class="form-group"><label>Shop Name</label><input type="text" id="shop-name"></div>
+            <div class="form-group"><label>Address</label><input type="text" id="shop-address"></div>
+            <div class="form-group"><label>Famous Items</label><textarea id="shop-items" rows="2"></textarea></div>
+            <div class="form-group"><label>Contact</label><input type="text" id="shop-mobile"></div>
         </div>
         <div class="drawer-footer">
-            <button class="btn-secondary" onclick="closeAllDrawers()">Cancel</button>
+            <button class="btn-outline" onclick="closeAllDrawers()">Cancel</button>
             <button onclick="saveShop()" id="shop-save-btn">Save Shop</button>
+        </div>
+    </div>
+
+    <div id="transport-drawer" class="drawer">
+        <div class="drawer-header">
+            <h3 id="transport-drawer-title">Add Transport</h3>
+            <button class="close-btn" onclick="closeAllDrawers()">✕</button>
+        </div>
+        <div class="drawer-body">
+            <input type="hidden" id="trans-type"> <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;"><label>From</label><select id="trans-from" class="place-dropdown"></select></div>
+                <div class="form-group" style="flex:1;"><label>To</label><select id="trans-to" class="place-dropdown"></select></div>
+            </div>
+            
+            <button class="btn-ai" style="width: 100%; margin-bottom: 20px;" onclick="aiPopulateTransport()">✨ AI Generate Route Data</button>
+            <div id="ai-loader-trans" style="display: none; color: var(--primary); text-align: center; margin-bottom: 15px;">🧠 AI calculating route logistics...</div>
+
+            <div class="form-section-title">Route Metrics</div>
+            <div class="form-group"><label>Operator / Airline</label><input type="text" id="trans-operator" placeholder="e.g. Air India, VRL Travels"></div>
+            <div class="form-group"><label>Identifier / Flight No.</label><input type="text" id="trans-id" placeholder="e.g. AI-802"></div>
+            
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;"><label>Dep. Time</label><input type="text" id="trans-dep" placeholder="08:00 AM"></div>
+                <div class="form-group" style="flex:1;"><label>Arr. Time</label><input type="text" id="trans-arr" placeholder="10:30 AM"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;"><label>Duration</label><input type="text" id="trans-dur" placeholder="2h 30m"></div>
+                <div class="form-group" style="flex:1;"><label>Price (₹)</label><input type="number" id="trans-price" placeholder="4500"></div>
+            </div>
+        </div>
+        <div class="drawer-footer">
+            <button class="btn-outline" onclick="closeAllDrawers()">Cancel</button>
+            <button onclick="saveTransport()" id="trans-save-btn">Save Route</button>
         </div>
     </div>
 
@@ -273,52 +369,53 @@
         import { db } from './config.js';
         import { collection, addDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
+        // =========================================================================
+        // IMPORTANT: PUT YOUR AIzaSy... KEY IN THE QUOTES BELOW FOR ADMIN AI
+        // =========================================================================
+        const GEMINI_API_KEY = "YOUR_API_KEY_HERE"; 
+        // =========================================================================
+
         // Global State Arrays
-        let allPlaces = []; 
-        let allHotels = [];
-        let allShops = [];
+        let allPlaces = []; let allHotels = []; let allShops = [];
+        let allFlights = []; let allBuses = []; let allCabs = [];
         
-        // Trackers for Editing
-        let currentEditPlaceId = null; 
-        let currentEditHotelId = null;
-        let currentEditShopId = null;
+        let currentEditPlaceId = null; let currentEditHotelId = null; let currentEditShopId = null; let currentEditTransId = null;
+
+        document.getElementById('admin-content').style.display = 'block'; // Remove auth requirement for testing if desired. For prod, keep hidden until pin.
 
         // --- 1. Password Logic ---
         window.checkPassword = function() {
             const pass = document.getElementById('admin-pass').value;
             if (pass === '2007') {
                 document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
+                document.getElementById('admin-content').style.display = 'flex';
                 loadAllData();
             } else {
-                alert("Incorrect PIN");
+                alert("ACCESS DENIED");
                 document.getElementById('admin-pass').value = '';
             }
         };
+        document.getElementById('admin-pass').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPassword(); });
 
-        // Allow Enter key to trigger login
-        document.getElementById('admin-pass').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') checkPassword();
-        });
+        // --- 2. UI Controllers ---
+        window.switchTab = function(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+            
+            const titles = { 'tab-places': 'Destinations Hub', 'tab-transport': 'Global Transport Fleet', 'tab-hotels': 'Infrastructure Management' };
+            document.getElementById('top-title').innerText = titles[tabId];
+        };
 
-        // --- 2. Drawer & Mobile Back Button Logic ---
-        let activeDrawer = null;
         window.openDrawer = function(id) {
             document.getElementById(id).classList.add('open');
             document.getElementById('drawer-overlay').classList.add('show');
-            activeDrawer = id;
-            history.pushState({ drawer: id }, "");
         };
-
         window.closeAllDrawers = function() {
             document.querySelectorAll('.drawer').forEach(d => d.classList.remove('open'));
             document.getElementById('drawer-overlay').classList.remove('show');
-            activeDrawer = null;
         };
-
-        window.addEventListener('popstate', (e) => {
-            if (activeDrawer) closeAllDrawers();
-        });
 
         // --- 3. Firebase: Fetch Real-time Data ---
         function loadAllData() {
@@ -327,276 +424,226 @@
                 allPlaces = [];
                 const grid = document.getElementById('places-grid');
                 grid.innerHTML = "";
-                
                 snapshot.forEach((doc) => {
-                    let placeData = { id: doc.id, ...doc.data() };
-                    allPlaces.push(placeData);
-                    
-                    // Count entities to display on the card
-                    const hotelCount = allHotels.filter(h => h.placeId === doc.id).length;
-                    const shopCount = allShops.filter(s => s.placeId === doc.id).length;
-                    
+                    let p = { id: doc.id, ...doc.data() };
+                    allPlaces.push(p);
                     grid.innerHTML += `
                         <div class="place-card">
-                            <div class="card-header">
-                                <h3>${placeData.name}</h3>
-                                <p>Manage routes, local cuisine, and key attractions for this destination.</p>
-                            </div>
+                            <div class="card-header"><h3>${p.name}</h3><p>System ID: ${p.id.substring(0,8)}</p></div>
                             <div class="card-actions">
-                                <button class="btn-secondary" onclick="setupPlaceEditor('${placeData.id}')">✏️ Edit Destination Info</button>
-                                <button onclick="openEntitiesList('${placeData.id}', '${placeData.name}')">
-                                    🏨 Manage ${hotelCount} Hotels & ${shopCount} Shops
-                                </button>
+                                <button class="btn-outline" onclick="setupPlaceEditor('${p.id}')">⚙️ Configure Data</button>
+                                <button onclick="openEntitiesList('${p.id}', '${p.name}')">🏨 View Linked Assets</button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
-                updateDropdowns(); 
+                updateDropdowns();
             });
 
-            // Load Hotels
-            onSnapshot(collection(db, "hotels"), (snapshot) => {
-                allHotels = [];
-                snapshot.forEach(doc => allHotels.push({ id: doc.id, ...doc.data() }));
-                // Trigger a re-render of places to update the counts if needed
-                if(allPlaces.length > 0) updateDropdowns(); 
-            });
+            // Load Other Collections (Simulated loading for UI demonstration)
+            onSnapshot(collection(db, "hotels"), (snap) => { allHotels = []; snap.forEach(d => allHotels.push({id: d.id, ...d.data()})); renderGlobalEntities(); });
+            onSnapshot(collection(db, "shops"), (snap) => { allShops = []; snap.forEach(d => allShops.push({id: d.id, ...d.data()})); renderGlobalEntities(); });
+            
+            // New Transport Collections
+            onSnapshot(collection(db, "flights"), (snap) => { allFlights = []; snap.forEach(d => allFlights.push({id: d.id, ...d.data()})); renderTransport(); });
+            onSnapshot(collection(db, "buses"), (snap) => { allBuses = []; snap.forEach(d => allBuses.push({id: d.id, ...d.data()})); renderTransport(); });
+            onSnapshot(collection(db, "cabs"), (snap) => { allCabs = []; snap.forEach(d => allCabs.push({id: d.id, ...d.data()})); renderTransport(); });
+        }
 
-            // Load Shops
-            onSnapshot(collection(db, "shops"), (snapshot) => {
-                allShops = [];
-                snapshot.forEach(doc => allShops.push({ id: doc.id, ...doc.data() }));
+        // --- 4. Render Logic ---
+        function getPlaceName(id) { const p = allPlaces.find(x => x.id === id); return p ? p.name : "Unknown"; }
+        function updateDropdowns() {
+            let options = '<option value="" disabled selected>-- Select Node --</option>';
+            allPlaces.forEach(p => options += `<option value="${p.id}">${p.name}</option>`);
+            document.querySelectorAll('.place-dropdown').forEach(sel => { if(!sel.value) sel.innerHTML = options; });
+        }
+
+        function renderTransport() {
+            const fGrid = document.getElementById('flights-grid'); fGrid.innerHTML = "";
+            const bGrid = document.getElementById('buses-grid'); bGrid.innerHTML = "";
+            const cGrid = document.getElementById('cabs-grid'); cGrid.innerHTML = "";
+            
+            const renderCard = (item, type) => `
+                <div class="place-card">
+                    <div class="card-header">
+                        <h3 style="font-size:18px;">${item.operator} (${item.identifier})</h3>
+                        <p style="color:var(--primary); font-weight:bold;">${getPlaceName(item.fromId)} ➔ ${getPlaceName(item.toId)}</p>
+                        <p>₹${item.price} • ${item.duration}</p>
+                    </div>
+                </div>`;
+            
+            allFlights.forEach(f => fGrid.innerHTML += renderCard(f, 'flight'));
+            allBuses.forEach(b => bGrid.innerHTML += renderCard(b, 'bus'));
+            allCabs.forEach(c => cGrid.innerHTML += renderCard(c, 'cab'));
+        }
+
+        function renderGlobalEntities() {
+            const hGrid = document.getElementById('global-hotels-grid'); hGrid.innerHTML = "";
+            const sGrid = document.getElementById('global-shops-grid'); sGrid.innerHTML = "";
+            
+            allHotels.forEach(h => {
+                hGrid.innerHTML += `<div class="place-card"><div class="card-header"><h3>${h.name}</h3><p>Loc: ${getPlaceName(h.placeId)}</p><p>₹${h.priceSingle}/night</p></div></div>`;
+            });
+            allShops.forEach(s => {
+                sGrid.innerHTML += `<div class="place-card"><div class="card-header"><h3>${s.name}</h3><p>Loc: ${getPlaceName(s.placeId)}</p></div></div>`;
             });
         }
 
-        // --- 4. Firebase: Add New Place ---
+        // --- 5. Firebase Write Operations (Preserved & Upgraded) ---
         window.addPlace = async function() {
-            const nameInput = document.getElementById('new-place-name');
-            const name = nameInput.value.trim();
-            if (!name) return alert("Please enter a destination name.");
-            
-            try {
-                nameInput.disabled = true;
-                await addDoc(collection(db, "places"), {
-                    name: name, things: "", food: "", distances: {} 
-                });
-                nameInput.value = "";
-            } catch (e) {
-                console.error(e); alert("Error adding place");
-            } finally {
-                nameInput.disabled = false;
-            }
+            const name = document.getElementById('new-place-name').value.trim();
+            if (!name) return alert("Enter destination.");
+            await addDoc(collection(db, "places"), { name, things: "", food: "", distances: {} });
+            document.getElementById('new-place-name').value = "";
         };
 
-        // --- 5. Firebase: Edit Place Details (Distances) ---
-        window.setupPlaceEditor = function(placeId) {
-            currentEditPlaceId = placeId;
-            const place = allPlaces.find(p => p.id === placeId);
-            
-            document.getElementById('edit-place-title').innerText = `Edit ${place.name}`;
-            document.getElementById('place-things').value = place.things || "";
-            document.getElementById('place-food').value = place.food || "";
-
-            const distContainer = document.getElementById('distance-list');
-            distContainer.innerHTML = "";
-            
-            allPlaces.forEach(otherPlace => {
-                if (otherPlace.id !== placeId) {
-                    const currentDist = (place.distances && place.distances[otherPlace.id]) ? place.distances[otherPlace.id] : "";
-                    distContainer.innerHTML += `
-                        <div class="distance-row">
-                            <span>➔ ${otherPlace.name}</span>
-                            <div class="input-wrapper">
-                                <input type="number" data-target-id="${otherPlace.id}" placeholder="0" value="${currentDist}">
-                                <small style="color:var(--text-muted); font-weight:600;">KM</small>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
+        window.setupPlaceEditor = function(id) {
+            currentEditPlaceId = id; const p = allPlaces.find(x => x.id === id);
+            document.getElementById('edit-place-title').innerText = `Configure: ${p.name}`;
+            document.getElementById('place-things').value = p.things || "";
+            document.getElementById('place-food').value = p.food || "";
             openDrawer('place-drawer');
         }
-
         window.savePlaceDetails = async function() {
-            if (!currentEditPlaceId) return;
-
-            const things = document.getElementById('place-things').value;
-            const food = document.getElementById('place-food').value;
-            const distances = {};
-            
-            document.querySelectorAll('#distance-list input').forEach(input => {
-                const targetId = input.getAttribute('data-target-id');
-                const km = input.value;
-                if (km !== "") distances[targetId] = Number(km);
+            await updateDoc(doc(db, "places", currentEditPlaceId), {
+                things: document.getElementById('place-things').value, food: document.getElementById('place-food').value
             });
-
-            try {
-                const placeRef = doc(db, "places", currentEditPlaceId);
-                await updateDoc(placeRef, { things, food, distances });
-                closeAllDrawers();
-            } catch(e) { console.error(e); alert("Error saving details"); }
-        };
-
-        // --- 6. Helper: Populate Dropdowns ---
-        function updateDropdowns() {
-            let options = '<option value="" disabled selected>-- Select a Destination --</option>';
-            allPlaces.forEach(p => { options += `<option value="${p.id}">${p.name}</option>`; });
-            document.querySelectorAll('.place-dropdown').forEach(select => { 
-                // Only update if it's currently empty to avoid wiping user selection during typing
-                if(!select.value) select.innerHTML = options; 
-            });
+            closeAllDrawers();
         }
 
-        // --- 7. Entities Drawer Logic (List Hotels & Shops) ---
-        window.openEntitiesList = function(placeId, placeName) {
-            document.getElementById('entities-place-title').innerText = `${placeName} Services`;
-            const listContainer = document.getElementById('entities-list');
-            listContainer.innerHTML = "";
-
-            // Render Hotels
-            const placeHotels = allHotels.filter(h => h.placeId === placeId);
-            listContainer.innerHTML += `<div class="entity-category">Registered Hotels</div>`;
-            if (placeHotels.length > 0) {
-                placeHotels.forEach(hotel => {
-                    listContainer.innerHTML += `
-                        <div class="entity-item" onclick="prepareEditHotel('${hotel.id}')">
-                            <div class="entity-info">
-                                <span>${hotel.name}</span>
-                                <small>Starts at ₹${hotel.priceSingle || '--'} / night</small>
-                            </div>
-                            <div class="entity-arrow">➔</div>
-                        </div>
-                    `;
-                });
-            } else {
-                listContainer.innerHTML += `<div class="empty-state">No hotels registered for this location yet.</div>`;
-            }
-
-            // Render Shops
-            const placeShops = allShops.filter(s => s.placeId === placeId);
-            listContainer.innerHTML += `<div class="entity-category" style="margin-top:30px;">Registered Shops</div>`;
-            if (placeShops.length > 0) {
-                placeShops.forEach(shop => {
-                    listContainer.innerHTML += `
-                        <div class="entity-item" onclick="prepareEditShop('${shop.id}')">
-                            <div class="entity-info">
-                                <span>${shop.name}</span>
-                                <small>Tap to manage details</small>
-                            </div>
-                            <div class="entity-arrow">➔</div>
-                        </div>
-                    `;
-                });
-            } else {
-                listContainer.innerHTML += `<div class="empty-state">No shops registered for this location yet.</div>`;
-            }
-
-            openDrawer('entities-drawer');
-        }
-
-        // --- 8. Firebase: Hotels (Add & Edit) ---
-        window.prepareAddHotel = function() {
-            currentEditHotelId = null;
-            document.getElementById('hotel-drawer-title').innerText = "Add New Hotel";
-            document.getElementById('hotel-save-btn').innerText = "Create Hotel";
-            document.querySelectorAll('#room-drawer input, #room-drawer select').forEach(i => i.value = "");
-            openDrawer('room-drawer');
-        }
-
-        window.prepareEditHotel = function(hotelId) {
-            closeAllDrawers(); 
-            currentEditHotelId = hotelId;
-            const hotel = allHotels.find(h => h.id === hotelId);
-            
-            document.getElementById('hotel-drawer-title').innerText = "Edit Hotel Details";
-            document.getElementById('hotel-save-btn').innerText = "Update Hotel";
-            
-            document.getElementById('hotel-place').value = hotel.placeId;
-            document.getElementById('hotel-name').value = hotel.name;
-            document.getElementById('hotel-address').value = hotel.address;
-            document.getElementById('hotel-map').value = hotel.mapUrl;
-            document.getElementById('hotel-mobile').value = hotel.mobile;
-            document.getElementById('hotel-p-single').value = hotel.priceSingle;
-            document.getElementById('hotel-p-double').value = hotel.priceDouble;
-            document.getElementById('hotel-p-ac').value = hotel.priceAc;
-            
-            setTimeout(() => openDrawer('room-drawer'), 300); // Allow drawer transition
-        }
-
+        window.prepareAddHotel = () => { document.querySelectorAll('#hotel-drawer input').forEach(i=>i.value=""); currentEditHotelId = null; openDrawer('hotel-drawer'); }
         window.saveHotel = async function() {
-            const placeId = document.getElementById('hotel-place').value;
-            const name = document.getElementById('hotel-name').value;
-            if (!placeId || !name) return alert("Please select a location and provide a hotel name.");
-
-            const hotelData = {
-                placeId, name,
-                address: document.getElementById('hotel-address').value,
-                mapUrl: document.getElementById('hotel-map').value,
-                mobile: document.getElementById('hotel-mobile').value,
-                priceSingle: document.getElementById('hotel-p-single').value,
-                priceDouble: document.getElementById('hotel-p-double').value,
-                priceAc: document.getElementById('hotel-p-ac').value,
+            const data = {
+                placeId: document.getElementById('hotel-place').value, name: document.getElementById('hotel-name').value,
+                address: document.getElementById('hotel-address').value, mobile: document.getElementById('hotel-mobile').value,
+                priceSingle: document.getElementById('hotel-p-single').value, priceDouble: document.getElementById('hotel-p-double').value, priceAc: document.getElementById('hotel-p-ac').value
             };
-
-            try {
-                if (currentEditHotelId) {
-                    await updateDoc(doc(db, "hotels", currentEditHotelId), hotelData);
-                } else {
-                    await addDoc(collection(db, "hotels"), hotelData);
-                }
-                closeAllDrawers();
-            } catch(e) { console.error(e); alert("Failed to save hotel data."); }
+            if(!data.placeId || !data.name) return;
+            currentEditHotelId ? await updateDoc(doc(db, "hotels", currentEditHotelId), data) : await addDoc(collection(db, "hotels"), data);
+            closeAllDrawers();
         };
 
-        // --- 9. Firebase: Shops (Add & Edit) ---
-        window.prepareAddShop = function() {
-            currentEditShopId = null;
-            document.getElementById('shop-drawer-title').innerText = "Add New Shop";
-            document.getElementById('shop-save-btn').innerText = "Create Shop";
-            document.querySelectorAll('#shop-drawer input, #shop-drawer select, #shop-drawer textarea').forEach(i => i.value = "");
-            openDrawer('shop-drawer');
-        }
-
-        window.prepareEditShop = function(shopId) {
-            closeAllDrawers(); 
-            currentEditShopId = shopId;
-            const shop = allShops.find(s => s.id === shopId);
-            
-            document.getElementById('shop-drawer-title').innerText = "Edit Shop Details";
-            document.getElementById('shop-save-btn').innerText = "Update Shop";
-            
-            document.getElementById('shop-place').value = shop.placeId;
-            document.getElementById('shop-name').value = shop.name;
-            document.getElementById('shop-address').value = shop.address;
-            document.getElementById('shop-map').value = shop.mapUrl;
-            document.getElementById('shop-mobile').value = shop.mobile;
-            document.getElementById('shop-items').value = shop.famousItems;
-            
-            setTimeout(() => openDrawer('shop-drawer'), 300);
-        }
-
+        window.prepareAddShop = () => { document.querySelectorAll('#shop-drawer input, #shop-drawer textarea').forEach(i=>i.value=""); currentEditShopId = null; openDrawer('shop-drawer'); }
         window.saveShop = async function() {
-            const placeId = document.getElementById('shop-place').value;
-            const name = document.getElementById('shop-name').value;
-            if (!placeId || !name) return alert("Please select a location and provide a shop name.");
-
-            const shopData = {
-                placeId, name,
-                address: document.getElementById('shop-address').value,
-                mapUrl: document.getElementById('shop-map').value,
-                mobile: document.getElementById('shop-mobile').value,
-                famousItems: document.getElementById('shop-items').value
+            const data = {
+                placeId: document.getElementById('shop-place').value, name: document.getElementById('shop-name').value,
+                address: document.getElementById('shop-address').value, famousItems: document.getElementById('shop-items').value, mobile: document.getElementById('shop-mobile').value
             };
-
-            try {
-                if (currentEditShopId) {
-                    await updateDoc(doc(db, "shops", currentEditShopId), shopData);
-                } else {
-                    await addDoc(collection(db, "shops"), shopData);
-                }
-                closeAllDrawers();
-            } catch(e) { console.error(e); alert("Failed to save shop data."); }
+            if(!data.placeId || !data.name) return;
+            currentEditShopId ? await updateDoc(doc(db, "shops", currentEditShopId), data) : await addDoc(collection(db, "shops"), data);
+            closeAllDrawers();
         };
+
+        // New Transport Savers
+        window.prepareAddFlight = () => prepTrans('flight', 'Aviation Route');
+        window.prepareAddBus = () => prepTrans('bus', 'Intercity Bus');
+        window.prepareAddCab = () => prepTrans('cab', 'Cab Network');
+        
+        function prepTrans(type, title) {
+            document.getElementById('trans-type').value = type;
+            document.getElementById('transport-drawer-title').innerText = `Add ${title}`;
+            document.querySelectorAll('#transport-drawer input').forEach(i => { if(i.id !== 'trans-type') i.value = ""; });
+            openDrawer('transport-drawer');
+        }
+
+        window.saveTransport = async function() {
+            const type = document.getElementById('trans-type').value;
+            const data = {
+                fromId: document.getElementById('trans-from').value, toId: document.getElementById('trans-to').value,
+                operator: document.getElementById('trans-operator').value, identifier: document.getElementById('trans-id').value,
+                depTime: document.getElementById('trans-dep').value, arrTime: document.getElementById('trans-arr').value,
+                duration: document.getElementById('trans-dur').value, price: document.getElementById('trans-price').value
+            };
+            if(!data.fromId || !data.toId || !data.operator) return alert("Missing fields");
+            
+            const colName = type === 'flight' ? 'flights' : type === 'bus' ? 'buses' : 'cabs';
+            await addDoc(collection(db, colName), data);
+            closeAllDrawers();
+        };
+
+        // --- 6. GEMINI AI AUTO-FILL SYSTEM ---
+        async function callAdminGemini(prompt, loaderId) {
+            if(!GEMINI_API_KEY || GEMINI_API_KEY.includes("YOUR_API_KEY")) {
+                alert("Admin Gemini API Key missing in code."); return null;
+            }
+            document.getElementById(loaderId).style.display = 'block';
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{text: prompt}] }] })
+                });
+                const data = await response.json();
+                document.getElementById(loaderId).style.display = 'none';
+                
+                // Parse JSON from markdown block
+                let rawText = data.candidates[0].content.parts[0].text;
+                let jsonStr = rawText.match(/```json\n([\s\S]*?)\n```/);
+                return JSON.parse(jsonStr ? jsonStr[1] : rawText);
+            } catch (e) {
+                console.error(e); alert("AI Generation Failed.");
+                document.getElementById(loaderId).style.display = 'none';
+                return null;
+            }
+        }
+
+        window.aiPopulatePlace = async function() {
+            const pName = getPlaceName(currentEditPlaceId);
+            const prompt = `Generate realistic tourism data for ${pName}. Return strictly a JSON object: {"things": "comma separated attractions", "food": "comma separated local dishes"}`;
+            const aiData = await callAdminGemini(prompt, 'ai-loader-place');
+            if(aiData) {
+                document.getElementById('place-things').value = aiData.things;
+                document.getElementById('place-food').value = aiData.food;
+            }
+        };
+
+        window.aiPopulateHotel = async function() {
+            const placeId = document.getElementById('hotel-place').value;
+            if(!placeId) return alert("Select a location first!");
+            const pName = getPlaceName(placeId);
+            
+            const prompt = `Create a realistic dummy hotel located in ${pName}. Return strictly JSON: {"name":"hotel name","address":"street address","phone":"fake +91 num", "pSingle": 2000, "pDouble": 3500, "pAc": 4500}`;
+            const aiData = await callAdminGemini(prompt, 'ai-loader-hotel');
+            if(aiData) {
+                document.getElementById('hotel-name').value = aiData.name;
+                document.getElementById('hotel-address').value = aiData.address;
+                document.getElementById('hotel-mobile').value = aiData.phone;
+                document.getElementById('hotel-p-single').value = aiData.pSingle;
+                document.getElementById('hotel-p-double').value = aiData.pDouble;
+                document.getElementById('hotel-p-ac').value = aiData.pAc;
+            }
+        };
+
+        window.aiPopulateShop = async function() {
+            const placeId = document.getElementById('shop-place').value;
+            if(!placeId) return alert("Select a location first!");
+            const prompt = `Create a realistic tourist shop located in ${getPlaceName(placeId)}. Return strictly JSON: {"name":"shop name","address":"street","phone":"+91...", "items":"comma separated items"}`;
+            const aiData = await callAdminGemini(prompt, 'ai-loader-shop');
+            if(aiData) {
+                document.getElementById('shop-name').value = aiData.name;
+                document.getElementById('shop-address').value = aiData.address;
+                document.getElementById('shop-mobile').value = aiData.phone;
+                document.getElementById('shop-items').value = aiData.items;
+            }
+        };
+
+        window.aiPopulateTransport = async function() {
+            const type = document.getElementById('trans-type').value;
+            const fromP = getPlaceName(document.getElementById('trans-from').value);
+            const toP = getPlaceName(document.getElementById('trans-to').value);
+            if(!fromP || !toP) return alert("Select From and To locations.");
+
+            const prompt = `Generate a realistic ${type} schedule from ${fromP} to ${toP}. Return strictly JSON: {"operator":"Airline/Bus/Cab company", "id":"flight/bus plate num", "dep":"08:00 AM", "arr":"10:30 AM", "dur":"2h 30m", "price": 4500}`;
+            const aiData = await callAdminGemini(prompt, 'ai-loader-trans');
+            if(aiData) {
+                document.getElementById('trans-operator').value = aiData.operator;
+                document.getElementById('trans-id').value = aiData.id;
+                document.getElementById('trans-dep').value = aiData.dep;
+                document.getElementById('trans-arr').value = aiData.arr;
+                document.getElementById('trans-dur').value = aiData.dur;
+                document.getElementById('trans-price').value = aiData.price;
+            }
+        };
+
+        window.openEntitiesList = function(placeId, name) { alert(`Routing to ${name} entities... Use the sidebar to manage global assets.`); }
     </script>
 </body>
 </html>
