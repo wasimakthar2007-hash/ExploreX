@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Home | ExploreX</title>
+    <title>AI Planner | ExploreX</title>
     <link rel="manifest" href="./manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -14,12 +14,12 @@
             --accent: #f59e0b; /* Golden Sun */
             --bg-light: #f8fafc;
             --text-dark: #0f172a;
-            --text-muted: #334155;
+            --text-muted: #e2e8f0; /* Lightened for dark background */
             
             /* Glassmorphism Variables */
             --glass-header: rgba(15, 23, 42, 0.85);
-            --card-glass: rgba(255, 255, 255, 0.92);
-            --card-border: rgba(255, 255, 255, 0.4);
+            --card-glass: rgba(15, 23, 42, 0.6); /* Darker glass for AI page */
+            --card-border: rgba(255, 255, 255, 0.15);
             --glow: rgba(14, 165, 233, 0.4);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
@@ -27,90 +27,46 @@
         /* Cinematic Fixed Background */
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.6)), 
+            background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8)), 
                         url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
             background-size: cover;
-            color: var(--text-dark); 
+            color: white; 
             overflow-x: hidden; 
             -webkit-font-smoothing: antialiased;
         }
 
-        h1, h2, h3, h4, .brand, .search-btn, .card-btn {
-            font-family: 'Outfit', sans-serif;
-        }
-        
+        h1, h2, h3, h4, .brand, .search-btn, .card-btn { font-family: 'Outfit', sans-serif; }
         a { text-decoration: none; color: inherit; }
 
         /* --- Custom Aeroplane Preloader --- */
         #preloader {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #0f172a, #1e293b); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.8s ease, visibility 0.8s ease;
         }
-        
-        .plane-container {
-            position: relative;
-            width: 120px;
-            height: 120px;
-        }
-
-        /* The SVG Aeroplane */
+        .plane-container { position: relative; width: 120px; height: 120px; }
         .aeroplane {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 60px; height: 60px;
-            margin-top: -30px; margin-left: -30px;
-            fill: none;
-            stroke: var(--primary);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            filter: drop-shadow(0 0 10px var(--glow));
-            animation: flyPlane 2.5s ease-in-out infinite alternate;
+            position: absolute; top: 50%; left: 50%; width: 60px; height: 60px;
+            margin-top: -30px; margin-left: -30px; fill: none; stroke: var(--primary);
+            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+            filter: drop-shadow(0 0 10px var(--glow)); animation: flyPlane 2.5s ease-in-out infinite alternate;
         }
-
-        /* Cloud trails behind the plane */
         .trail {
-            position: absolute;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 2px;
-            top: 50%;
-            right: 50%;
-            animation: trailMove 1.5s linear infinite;
+            position: absolute; height: 2px; background: rgba(255, 255, 255, 0.5);
+            border-radius: 2px; top: 50%; right: 50%; animation: trailMove 1.5s linear infinite;
         }
         .trail:nth-child(2) { top: 40%; animation-delay: 0.2s; }
         .trail:nth-child(3) { top: 60%; animation-delay: 0.5s; }
-
         .preloader-text {
-            margin-top: 30px;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            margin-top: 30px; color: white; font-family: 'Outfit', sans-serif; font-size: 24px;
+            font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
             animation: pulseText 1.5s ease-in-out infinite alternate;
         }
 
-        @keyframes flyPlane {
-            0% { transform: translateY(10px) rotate(-5deg); }
-            100% { transform: translateY(-10px) rotate(5deg); }
-        }
-        @keyframes trailMove {
-            0% { width: 0; opacity: 1; transform: translateX(0); }
-            100% { width: 40px; opacity: 0; transform: translateX(-60px); }
-        }
-        @keyframes pulseText {
-            0% { opacity: 0.5; text-shadow: 0 0 0px var(--glow); }
-            100% { opacity: 1; text-shadow: 0 0 15px var(--glow); }
-        }
+        @keyframes flyPlane { 0% { transform: translateY(10px) rotate(-5deg); } 100% { transform: translateY(-10px) rotate(5deg); } }
+        @keyframes trailMove { 0% { width: 0; opacity: 1; transform: translateX(0); } 100% { width: 40px; opacity: 0; transform: translateX(-60px); } }
+        @keyframes pulseText { 0% { opacity: 0.5; text-shadow: 0 0 0px var(--glow); } 100% { opacity: 1; text-shadow: 0 0 15px var(--glow); } }
 
         /* --- Header (App Bar) --- */
         header {
@@ -129,11 +85,8 @@
         .profile-pic {
             width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
             cursor: pointer; border: 3px solid var(--primary); transition: all 0.3s;
-            box-shadow: 0 4px 15px var(--glow);
-            opacity: 0; /* Hidden initially, revealed by JS */
-            transition: opacity 0.5s ease;
+            box-shadow: 0 4px 15px var(--glow); opacity: 0; transition: opacity 0.5s ease;
         }
-        .profile-pic:hover { transform: scale(1.1); box-shadow: 0 6px 20px var(--glow); }
 
         /* --- Side Panel (Drawer) --- */
         .drawer-overlay {
@@ -151,120 +104,78 @@
         .drawer a { padding: 18px 0; font-size: 18px; font-weight: 600; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; color: var(--text-dark); transition: all 0.2s;}
         .drawer a:hover { color: var(--primary); padding-left: 10px; background: #f8fafc; border-radius: 8px;}
 
-        /* --- PWA Install Banner --- */
-        #install-banner {
-            display: none; background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white; padding: 15px 25px; text-align: center;
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 450px; border-radius: 16px;
-            box-shadow: 0 15px 30px var(--glow); z-index: 90;
-            align-items: center; justify-content: space-between; font-size: 16px; font-weight: 600;
-        }
-        #install-banner button {
-            background: white; color: var(--primary); border: none;
-            padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 15px;
-        }
-
         /* --- Main Content --- */
         main { padding: 110px 20px 60px; max-width: 1000px; margin: 0 auto; }
         
-        .hero {
-            text-align: center; color: white; margin-bottom: 40px;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
+        .hero { text-align: center; color: white; margin-bottom: 40px; text-shadow: 0 4px 15px rgba(0,0,0,0.4); }
         .hero h1 { font-size: 46px; font-weight: 900; margin-bottom: 10px; letter-spacing: -1px; }
-        .hero p { font-size: 20px; color: #f8fafc; font-weight: 500;}
+        .hero p { font-size: 20px; font-weight: 500;}
 
         /* --- Search / Journey Planner Card (Glassmorphism) --- */
         .search-card {
             background: var(--card-glass); border-radius: 24px; padding: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15); margin-bottom: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3); margin-bottom: 40px;
             position: relative; z-index: 10; border: 1px solid var(--card-border);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
-        .search-card h2 { color: var(--text-dark); margin-bottom: 25px; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;}
+        .search-card h2 { color: white; margin-bottom: 25px; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;}
         
         .input-group { position: relative; margin-bottom: 25px; }
-        .input-group label { display: block; font-size: 16px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .input-group label { display: block; font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;}
         
         .input-group input { 
-            width: 100%; padding: 20px; border: 2px solid #cbd5e1; border-radius: 14px; 
-            font-size: 18px; font-weight: 600; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            color: var(--text-dark); background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            width: 100%; padding: 20px; border: 2px solid rgba(255,255,255,0.2); border-radius: 14px; 
+            font-size: 18px; font-weight: 600; outline: none; transition: all 0.3s; 
+            color: white; background: rgba(0,0,0,0.4); 
         }
-        .input-group input:focus { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 20px var(--glow); }
+        .input-group input:focus { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 20px var(--glow); background: rgba(0,0,0,0.6); }
+        .input-group input::placeholder { color: rgba(255,255,255,0.5); }
         
         .search-btn { 
             background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
-            color: white; border: none; padding: 22px; 
-            width: 100%; border-radius: 14px; font-size: 22px; font-weight: 800; 
-            cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 10px 25px var(--glow);
+            color: white; border: none; padding: 22px; width: 100%; border-radius: 14px; font-size: 22px; font-weight: 800; 
+            cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 25px var(--glow);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
         }
         .search-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px var(--glow); }
-        .search-btn:active { transform: translateY(0); }
-        
-        /* Autocomplete Suggestions */
-        .suggestions-list {
-            position: absolute; top: 100%; left: 0; right: 0;
-            background: white; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            max-height: 250px; overflow-y: auto; z-index: 20; display: none; margin-top: 10px;
-            border: 1px solid #e2e8f0;
-        }
-        .suggestion-item { padding: 18px 20px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 17px; font-weight: 600; color: var(--text-dark);}
-        .suggestion-item:last-child { border-bottom: none; }
-        .suggestion-item:hover { background: #f8fafc; color: var(--primary); padding-left: 25px; transition: 0.2s;}
+        .search-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-        /* --- Dynamic Results Section --- */
+        .loader-text { text-align: center; color: var(--primary); font-weight: 800; font-size: 18px; margin-bottom: 30px; display: none; text-shadow: 0 0 10px var(--glow); animation: pulseText 1.5s infinite alternate; }
+
+        /* --- Dynamic AI Results Section --- */
         #results-container { display: none; margin-bottom: 50px; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         
         .result-header { 
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7)); 
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px); border: 1px solid var(--card-border);
             color: white; padding: 25px 30px; border-radius: 20px; margin-bottom: 30px; 
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
-        .result-header h2 { font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -0.5px;}
+        .result-header h2 { font-size: 28px; font-weight: 800; margin: 0; }
         .distance-badge { background: var(--primary); color: white; padding: 8px 18px; border-radius: 30px; font-weight: 800; font-size: 16px; box-shadow: 0 4px 10px var(--glow);}
 
         .info-card { 
             background: var(--card-glass); padding: 30px; border-radius: 20px; margin-bottom: 30px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--card-border); backdrop-filter: blur(20px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--card-border); backdrop-filter: blur(20px);
         }
-        .info-card h3 { margin: 0 0 15px 0; color: var(--text-dark); font-size: 24px; font-weight: 800; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;}
-        .info-card p { color: var(--text-muted); font-size: 17px; line-height: 1.7; margin: 0; font-weight: 500;}
-
-        .entity-list { display: flex; flex-direction: column; gap: 15px; }
-        .entity-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.02);}
-        .entity-card:hover { transform: translateX(5px); border-color: var(--primary); }
-        .entity-card .title { font-weight: 800; color: var(--text-dark); font-size: 18px; }
-        .entity-card .detail { font-size: 15px; color: var(--text-muted); display: flex; justify-content: space-between; font-weight: 500;}
-        .entity-card a { color: var(--primary); font-size: 15px; font-weight: 800; text-decoration: underline; margin-top: 5px; display: inline-block;}
-
-        /* --- Dynamic Transport Grid --- */
-        .section-title { font-size: 32px; margin-bottom: 25px; color: white; font-weight: 900; text-shadow: 0 4px 10px rgba(0,0,0,0.4); letter-spacing: -0.5px;}
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .info-card h3 { margin: 0 0 15px 0; color: white; font-size: 24px; font-weight: 800; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 12px;}
         
-        .card {
-            background: var(--card-glass); border-radius: 20px; overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); border: 1px solid var(--card-border);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; opacity: 0; transform: translateY(20px); 
-            backdrop-filter: blur(10px);
+        .route-tag { display: inline-block; background: rgba(14, 165, 233, 0.2); border: 1px solid var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; margin: 4px 8px 4px 0; }
+
+        .entity-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .entity-card { 
+            background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); 
+            display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s; 
         }
-        .card.show { opacity: 1; transform: translateY(0); }
-        .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px rgba(0,0,0,0.25); border-color: white;}
-        
-        .card-img { width: 100%; height: 180px; object-fit: cover; }
-        .card-content { padding: 25px; }
-        .card-content h3 { margin: 0 0 12px 0; font-size: 24px; font-weight: 800; color: var(--text-dark); }
-        .card-content p { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; font-weight: 500;}
-        .card-btn {
-            display: inline-block; width: 100%; text-align: center;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 16px;
-            border-radius: 12px; font-size: 18px; font-weight: 800; transition: all 0.2s; box-shadow: 0 4px 15px var(--glow);
-        }
-        .card:hover .card-btn { transform: scale(1.03); }
+        .entity-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .entity-card .title { font-weight: 800; color: white; font-size: 18px; display: flex; justify-content: space-between;}
+        .entity-card .price { color: var(--accent); font-weight: 800; }
+        .entity-card .detail { font-size: 14px; color: var(--text-muted); line-height: 1.5; font-weight: 500;}
+
+        .map-btn { display: inline-block; background: #10b981; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 16px; margin-top: 15px; text-align: center; transition: 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .map-btn:hover { transform: scale(1.02); background: #059669; }
+
     </style>
 </head>
 <body>
@@ -279,7 +190,7 @@
                 <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-.5-.5-2.5 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 4.5L6 16l-3.2-1.1c-.4-.1-.8.1-1 .5L1 17l4.5 2L10 23l1.5-1.5c.4-.3.6-.8.5-1.2L11 17l3.5-3.5 8.5 8.2c.4.4 1 .2 1.2-.3l.6-1.5c.2-.6-.2-1.1-.8-1.2z" fill="var(--primary)" stroke="none" filter="drop-shadow(0px 0px 5px var(--glow))"/>
             </svg>
         </div>
-        <div class="preloader-text">ExploreX</div>
+        <div class="preloader-text">ExploreX AI</div>
     </div>
 
     <header>
@@ -295,389 +206,213 @@
     <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
     <div class="drawer" id="drawer">
         <h2>ExploreX Menu</h2>
-        <a href="home.html">🏠 Home</a>
+        <a href="home.html">🏠 Dashboard</a>
         <a href="profile.html">👤 My Profile</a>
-        <a href="bus.html" style="color: var(--primary); font-weight: 800; background: #f0f9ff; border-radius: 8px; padding-left: 10px;">🚌 Book a Bus</a>
+        <a href="bus.html">🚌 Book a Bus</a>
         <a href="cab.html">🚕 Book a Cab</a>
-        <a href="train.html">🚆 Railway Tickets</a>
         <a href="air.html">✈️ Flight Tickets</a>
-        <a href="aitour.html">🤖 AI Tour Planner</a>
+        <a href="aitour.html" style="color: var(--primary); font-weight: 800; background: #f0f9ff; border-radius: 8px; padding-left: 10px;">🤖 AI Tour Planner</a>
         <a href="#" id="logout-btn" style="color: red; margin-top: auto;">🚪 Logout</a>
     </div>
 
     <main>
-        <div class="hero" id="hero-banner">
-            <div>
-                <h1>Where to next?</h1>
-                <p>Your cinematic journey begins here.</p>
-            </div>
+        <div class="hero">
+            <h1>AI Route Intelligence</h1>
+            <p>Let our engine craft your perfect itinerary instantly.</p>
         </div>
 
-        <div class="search-card" id="search-card">
-            <h2>Plan Your Route</h2>
+        <div class="search-card">
+            <h2>Plan Your Journey</h2>
             
             <div class="input-group">
-                <label>From Place</label>
-                <input type="text" id="from-input" placeholder="Enter starting location..." autocomplete="off">
-                <div class="suggestions-list" id="from-suggestions"></div>
+                <label>Starting Point</label>
+                <input type="text" id="origin" placeholder="e.g., Chennai, India" autocomplete="off">
             </div>
 
             <div class="input-group">
-                <label>To Place</label>
-                <input type="text" id="to-input" placeholder="Enter destination..." autocomplete="off">
-                <div class="suggestions-list" id="to-suggestions"></div>
+                <label>Destination</label>
+                <input type="text" id="destination" placeholder="e.g., Munnar, Kerala" autocomplete="off">
             </div>
 
-            <button class="search-btn" id="search-route-btn">Find Routes & Places</button>
+            <button class="search-btn" id="generate-btn">
+                <span>Engage AI Engine</span> 🚀
+            </button>
+        </div>
+
+        <div class="loader-text" id="loading-indicator">
+            Compiling maps, finding hotels, and generating routes... ⏳
         </div>
 
         <div id="results-container">
-            <div class="result-header">
-                <h2>Journey Details</h2>
-                <div class="distance-badge" id="res-distance">Calculating...</div>
             </div>
-
-            <div class="info-card" style="background: transparent; border: none; box-shadow: none; padding: 0; margin-bottom: 40px; backdrop-filter: none;">
-                <h3 style="border-bottom: none; font-size: 28px; font-weight: 900; color: white; text-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Book Your Transport</h3>
-                <div class="grid" id="dynamic-transport-grid">
-                    </div>
-            </div>
-
-            <div class="info-card">
-                <h3>Famous Things to Do</h3>
-                <p id="res-things">Nothing specified.</p>
-            </div>
-
-            <div class="info-card">
-                <h3>Famous Local Food</h3>
-                <p id="res-food">Nothing specified.</p>
-            </div>
-
-            <div class="info-card">
-                <h3>Premium Hotels</h3>
-                <div class="entity-list" id="res-hotels">
-                    </div>
-            </div>
-
-            <div class="info-card">
-                <h3>Local Shops & Specialties</h3>
-                <div class="entity-list" id="res-shops">
-                    </div>
-            </div>
-        </div>
-
-        <h2 class="section-title">Experience the Future</h2>
-        <div class="grid">
-            <div class="card" onclick="window.location.href='aitour.html'">
-                <img class="card-img" src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="AI">
-                <div class="card-content">
-                    <h3>AI Tour Planner</h3>
-                    <p>Let AI curate the perfect master itinerary for you based on your unique travel style.</p>
-                    <div class="card-btn">Plan with AI Magic</div>
-                </div>
-            </div>
-        </div>
     </main>
 
-    <div id="install-banner">
-        <span>Install ExploreX App</span>
-        <button id="install-btn">Install</button>
-    </div>
-
     <script type="module">
-        import { auth, db } from './config.js';
+        import { auth } from './config.js'; // Removed db import, not using Firebase data here
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-        import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-        // Global variable to track if Firebase has responded
-        let isAuthChecked = false;
-        let isDataLoaded = false;
-
-        // Function to smoothly remove the preloader once everything is ready
-        function removePreloader() {
-            if (isAuthChecked && isDataLoaded) {
-                setTimeout(() => {
-                    const preloader = document.getElementById('preloader');
-                    preloader.style.opacity = '0';
-                    setTimeout(() => {
-                        preloader.style.visibility = 'hidden';
-                    }, 800); // Wait for the CSS fade transition to finish
-                }, 800); // Give the plane a minimum of 0.8 seconds to show off
-            }
-        }
-
-        // 1. Firebase Authentication State
+        // Auth & UI Initialization
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const dp = document.getElementById('user-dp');
-                if(user.photoURL) {
-                    dp.src = user.photoURL;
-                } else {
-                    dp.src = 'https://via.placeholder.com/48'; // Fallback
-                }
-                dp.style.opacity = "1"; // Fade in the DP
+                dp.src = user.photoURL ? user.photoURL : 'https://via.placeholder.com/48';
+                dp.style.opacity = "1";
                 
-                isAuthChecked = true;
-                removePreloader(); // Attempt to remove loader
+                // Remove preloader once verified
+                setTimeout(() => {
+                    const preloader = document.getElementById('preloader');
+                    preloader.style.opacity = '0';
+                    setTimeout(() => preloader.style.visibility = 'hidden', 800);
+                }, 800);
             } else {
                 window.location.href = 'login.html';
             }
         });
 
-        // Logout logic
         document.getElementById('logout-btn').addEventListener('click', (e) => {
             e.preventDefault();
             signOut(auth).then(() => { window.location.href = 'login.html'; });
         });
-
-        // 2. Fetch Complete Places Data from Firestore safely
-        let availablePlaces = [];
-        
-        async function fetchPlaces() {
-            try {
-                const querySnapshot = await getDocs(collection(db, "places"));
-                availablePlaces = []; 
-                querySnapshot.forEach((doc) => {
-                    availablePlaces.push({
-                        id: doc.id,
-                        name: doc.data().name || "Unknown",
-                        distances: doc.data().distances || {},
-                        food: doc.data().food || "No food specified.",
-                        things: doc.data().things || "No attractions specified."
-                    });
-                });
-                
-                isDataLoaded = true;
-                removePreloader(); // Attempt to remove loader
-
-            } catch (error) {
-                console.error("Error fetching places:", error);
-                // Even on error, we must let the user in so they aren't stuck on the loading screen
-                isDataLoaded = true; 
-                removePreloader();
-            }
-        }
-        
-        fetchPlaces();
-
-        // 3. Autocomplete Setup Logic
-        function setupAutocomplete(inputId, suggestionsBoxId) {
-            const input = document.getElementById(inputId);
-            const suggestionsBox = document.getElementById(suggestionsBoxId);
-
-            input.addEventListener('input', () => {
-                const val = input.value.toLowerCase().trim();
-                suggestionsBox.innerHTML = '';
-                
-                if (!val) {
-                    suggestionsBox.style.display = 'none';
-                    return;
-                }
-
-                const matches = availablePlaces.filter(place => 
-                    place.name.toLowerCase().includes(val)
-                );
-                
-                if (matches.length > 0) {
-                    suggestionsBox.style.display = 'block';
-                    matches.forEach(match => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = match.name;
-                        
-                        div.addEventListener('click', () => {
-                            input.value = match.name;
-                            suggestionsBox.style.display = 'none';
-                        });
-                        suggestionsBox.appendChild(div);
-                    });
-                } else {
-                    suggestionsBox.style.display = 'none';
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (e.target !== input && e.target !== suggestionsBox) {
-                    suggestionsBox.style.display = 'none';
-                }
-            });
-        }
-
-        setupAutocomplete('from-input', 'from-suggestions');
-        setupAutocomplete('to-input', 'to-suggestions');
-
-        // 4. THE REAL SEARCH LOGIC
-        document.getElementById('search-route-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('search-route-btn');
-            const fromName = document.getElementById('from-input').value.trim();
-            const toName = document.getElementById('to-input').value.trim();
-            
-            if(!fromName || !toName) {
-                alert("Please select both 'From' and 'To' locations.");
-                return;
-            }
-
-            const fromPlace = availablePlaces.find(p => p.name.toLowerCase() === fromName.toLowerCase());
-            const toPlace = availablePlaces.find(p => p.name.toLowerCase() === toName.toLowerCase());
-
-            if (!fromPlace || !toPlace) {
-                alert("Could not find database entries for these locations. Please select from the dropdown.");
-                return;
-            }
-
-            btn.innerHTML = "Planning Journey...";
-            
-            // Calculate Distance Safely
-            let distance = "Distance not set";
-            if (fromPlace.distances && fromPlace.distances[toPlace.id]) {
-                distance = fromPlace.distances[toPlace.id] + " KM";
-            } else if (toPlace.distances && toPlace.distances[fromPlace.id]) {
-                distance = toPlace.distances[fromPlace.id] + " KM";
-            }
-
-            document.getElementById('res-distance').innerText = distance;
-            document.getElementById('res-things').innerText = toPlace.things || "No attractions specified in admin.";
-            document.getElementById('res-food').innerText = toPlace.food || "No food specified in admin.";
-
-            const encodedFrom = encodeURIComponent(fromPlace.name);
-            const encodedTo = encodeURIComponent(toPlace.name);
-            
-            document.getElementById('dynamic-transport-grid').innerHTML = `
-                <div class="card show" onclick="window.location.href='bus.html?from=${encodedFrom}&to=${encodedTo}'">
-                    <img class="card-img" src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Bus">
-                    <div class="card-content">
-                        <h3>Intercity Bus</h3>
-                        <p>Book premium AC sleepers from ${fromPlace.name} to ${toPlace.name}.</p>
-                        <div class="card-btn">Book Bus</div>
-                    </div>
-                </div>
-
-                <div class="card show" onclick="window.location.href='cab.html?from=${encodedFrom}&to=${encodedTo}'">
-                    <img class="card-img" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Cab">
-                    <div class="card-content">
-                        <h3>Private Cab</h3>
-                        <p>Comfortable outstation rides from ${fromPlace.name} to ${toPlace.name}.</p>
-                        <div class="card-btn">Book Cab</div>
-                    </div>
-                </div>
-
-                <div class="card show" onclick="window.location.href='train.html?from=${encodedFrom}&to=${encodedTo}'">
-                    <img class="card-img" src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Train">
-                    <div class="card-content">
-                        <h3>Scenic Railway</h3>
-                        <p>Relax and enjoy the train journey to ${toPlace.name}.</p>
-                        <div class="card-btn">Book Train</div>
-                    </div>
-                </div>
-            `;
-
-            try {
-                // Fetch Hotels
-                const hotelsQ = query(collection(db, "hotels"), where("placeId", "==", toPlace.id));
-                const hotelsSnap = await getDocs(hotelsQ);
-                const hotelsContainer = document.getElementById('res-hotels');
-                hotelsContainer.innerHTML = "";
-
-                if (hotelsSnap.empty) {
-                    hotelsContainer.innerHTML = "<p style='color: var(--text-muted); font-weight: 500;'>No hotels found for this location.</p>";
-                } else {
-                    hotelsSnap.forEach(doc => {
-                        const h = doc.data();
-                        hotelsContainer.innerHTML += `
-                            <div class="entity-card">
-                                <span class="title">🏨 ${h.name}</span>
-                                <span class="detail"><span>Price (Single): ₹${h.priceSingle || '--'}</span> <span>AC: ₹${h.priceAc || '--'}</span></span>
-                                <span class="detail">📞 ${h.mobile || 'No contact provided'}</span>
-                                ${h.mapUrl ? `<a href="${h.mapUrl}" target="_blank">View on Map</a>` : ''}
-                            </div>
-                        `;
-                    });
-                }
-
-                // Fetch Shops
-                const shopsQ = query(collection(db, "shops"), where("placeId", "==", toPlace.id));
-                const shopsSnap = await getDocs(shopsQ);
-                const shopsContainer = document.getElementById('res-shops');
-                shopsContainer.innerHTML = "";
-
-                if (shopsSnap.empty) {
-                    shopsContainer.innerHTML = "<p style='color: var(--text-muted); font-weight: 500;'>No shops found for this location.</p>";
-                } else {
-                    shopsSnap.forEach(doc => {
-                        const s = doc.data();
-                        shopsContainer.innerHTML += `
-                            <div class="entity-card">
-                                <span class="title">🛍️ ${s.name}</span>
-                                <span class="detail" style="color:var(--text-dark);"><strong>Famous for:</strong> ${s.famousItems || 'Various items'}</span>
-                                <span class="detail">📞 ${s.mobile || 'No contact provided'}</span>
-                                ${s.mapUrl ? `<a href="${s.mapUrl}" target="_blank">View on Map</a>` : ''}
-                            </div>
-                        `;
-                    });
-                }
-
-                document.getElementById('results-container').style.display = 'block';
-
-            } catch (error) {
-                console.error("Error fetching related entities:", error);
-                alert("Failed to load hotels and shops.");
-            }
-
-            btn.innerHTML = "Find Routes & Places";
-        });
     </script>
 
     <script>
-        // Side Panel (Drawer) Logic
+        // Drawer Logic
         const drawer = document.getElementById('drawer');
         const overlay = document.getElementById('drawer-overlay');
 
-        window.openDrawer = function() {
-            drawer.classList.add('open');
-            overlay.classList.add('show');
-            history.pushState({ drawerOpen: true }, "");
-        }
+        window.openDrawer = () => { drawer.classList.add('open'); overlay.classList.add('show'); }
+        window.closeDrawer = () => { drawer.classList.remove('open'); overlay.classList.remove('show'); }
 
-        window.closeDrawer = function() {
-            drawer.classList.remove('open');
-            overlay.classList.remove('show');
-        }
+        // AI Logic & JSON UI Rendering
+        const generateBtn = document.getElementById('generate-btn');
+        const originInput = document.getElementById('origin');
+        const destInput = document.getElementById('destination');
+        const resultsContainer = document.getElementById('results-container');
+        const loader = document.getElementById('loading-indicator');
 
-        window.addEventListener('popstate', (e) => {
-            if (drawer.classList.contains('open')) closeDrawer();
-        });
+        generateBtn.addEventListener('click', async () => {
+            const origin = originInput.value.trim();
+            const destination = destInput.value.trim();
 
-        // Scroll Animation (Intersection Observer)
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    entry.target.classList.add('show');
+            if (!origin || !destination) {
+                alert("Please enter both an origin and destination to engage the AI.");
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = "Processing Data...";
+            loader.style.display = 'block';
+            resultsContainer.style.display = 'none';
+
+            // Instructing the AI to return strictly parsed JSON data
+            const jsonPrompt = `
+                Analyze a trip from ${origin} to ${destination}.
+                You MUST respond ONLY with a raw, valid JSON object. Do not include markdown formatting like \`\`\`json. 
+                Use exactly this structure:
+                {
+                    "distance": "e.g., 580 km",
+                    "time": "e.g., 10 hours 30 mins",
+                    "map_url": "Direct Google maps directions URL from ${origin} to ${destination}",
+                    "routes": ["Highway Name 1", "Alternative Route 2"],
+                    "hotels": [
+                        {"name": "Hotel Name", "price": "Estimated Price/Night", "desc": "Short description"}
+                    ],
+                    "spots": [
+                        {"name": "Spot Name", "desc": "Why visit here?"}
+                    ],
+                    "food": [
+                        {"name": "Dish Name", "desc": "Local delicacy description"}
+                    ]
                 }
-            });
-        }, { threshold: 0.1 });
+            `;
 
-        // Wait for plane preloader to finish before attaching scroll animations
-        setTimeout(() => {
-            document.querySelectorAll('.card').forEach(card => observer.observe(card));
-        }, 1500);
+            try {
+                // Hitting your Hugging Face Backend!
+                const response = await fetch('https://wasimakthar-explorex.hf.space/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: [{ role: "user", parts: [{ text: jsonPrompt }] }] })
+                });
 
-        // PWA Install Prompt Logic
-        let deferredPrompt;
-        const installBanner = document.getElementById('install-banner');
-        const installBtn = document.getElementById('install-btn');
+                if (!response.ok) throw new Error("Backend connection failed.");
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBanner.style.display = 'flex';
-        });
+                const data = await response.json();
+                let rawText = data.candidates[0].content.parts[0].text;
+                
+                // Strip markdown backticks if AI sneaks them in
+                rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const aiData = JSON.parse(rawText);
 
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                installBanner.style.display = 'none';
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
+                // 1. Build Route Tags
+                let routesHTML = aiData.routes.map(r => `<span class="route-tag">🛣️ ${r}</span>`).join('');
+                
+                // 2. Build Hotels Grid
+                let hotelsHTML = aiData.hotels.map(h => `
+                    <div class="entity-card">
+                        <span class="title">🏨 ${h.name} <span class="price">${h.price}</span></span>
+                        <span class="detail">${h.desc}</span>
+                    </div>
+                `).join('');
+
+                // 3. Build Spots Grid
+                let spotsHTML = aiData.spots.map(s => `
+                    <div class="entity-card">
+                        <span class="title">📸 ${s.name}</span>
+                        <span class="detail">${s.desc}</span>
+                    </div>
+                `).join('');
+
+                // 4. Build Food Grid
+                let foodHTML = aiData.food.map(f => `
+                    <div class="entity-card">
+                        <span class="title">🍽️ ${f.name}</span>
+                        <span class="detail">${f.desc}</span>
+                    </div>
+                `).join('');
+
+                // Inject formatted UI into DOM
+                resultsContainer.innerHTML = `
+                    <div class="result-header">
+                        <h2>Journey Overview</h2>
+                        <div class="distance-badge">⏱️ ${aiData.time} | 📏 ${aiData.distance}</div>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Navigation & Routes</h3>
+                        <div style="margin-bottom: 15px;">${routesHTML}</div>
+                        <a href="${aiData.map_url}" target="_blank" class="map-btn">📍 Open Live Google Maps Navigation</a>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Famous Attractions</h3>
+                        <div class="entity-list">${spotsHTML}</div>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Recommended Premium Stays</h3>
+                        <div class="entity-list">${hotelsHTML}</div>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Local Delicacies to Try</h3>
+                        <div class="entity-list">${foodHTML}</div>
+                    </div>
+                `;
+
+                resultsContainer.style.display = 'block';
+
+            } catch (error) {
+                console.error("AI Error:", error);
+                resultsContainer.innerHTML = `
+                    <div class="info-card" style="border-color: #ef4444;">
+                        <h3 style="color: #ef4444; border-bottom: none;">❌ System Error</h3>
+                        <p style="color: #f87171;">Failed to connect to the AI engine or parse the data. Ensure your Hugging Face backend is running.</p>
+                    </div>`;
+                resultsContainer.style.display = 'block';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = `<span>Engage AI Engine</span> 🚀`;
+                loader.style.display = 'none';
             }
         });
     </script>
